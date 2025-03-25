@@ -29,3 +29,4 @@ pathlib~=1.0.1
 matplotlib~=3.10.1
 wordcloud~=1.9.4
 dependency-injector~=4.46.0
+pymupdf~=1.25.4
