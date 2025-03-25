@@ -1,0 +1,30 @@
+# UI
+streamlit>=1.43.2
+
+# LLM
+langchain>=0.3.21
+langchain-core>=0.3.46
+langchain-openai>=0.3.9
+langchain-text-splitters>=0.3.7
+langchain-community>=0.3.20
+
+# Data
+numpy>=2.2.4
+scikit-learn>=1.6.1
+plotly>=6.0.1
+
+# DB
+sqlmodel>=0.0.24
+SQLAlchemy>=2.0.39
+pgvector>=0.4.0
+psycopg2-binary>=2.9.10
+alembic>=1.15.1
+
+# Narzędzia
+python-dotenv>=1.0.1
+requests>=2.32.3
+pydantic>=2.11.0b2
+regex>=2024.11.6
+pathlib>=1.0.1
+matplotlib>=3.10.1
+wordcloud>=1.9.4

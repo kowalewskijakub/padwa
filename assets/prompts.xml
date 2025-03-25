@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompts>
+    <prompt id="act-summarization">
+        <template>
+            You are a specialized AI for legal analysis.
+            Your task is to generate a summary of the provided text and determine whether the delivered text is
+            irrelevant.
+
+            Text is related to the Polish legal system.
+
+            Text:
+            {text}
+
+            Assess the irrelevancy on a logical flag, where true means the text is irrelevant and false means the text
+            is relevant.
+            It is irrelevant if it is one of many:
+            - an act or document concerning an individual person (e.g. the prime minister appoints a director),
+            - a court judgment, administrative decision, or international agreement,
+            - not a legal document at all (e.g. a newspaper article, a recipe).
+
+            Respond with:
+            1. Concise and straight to the point summary in Polish (200-300 words).
+            2. Logical flag indicating whether the text is irrelevant (true/false).
+
+            {format_instructions}
+        </template>
+    </prompt>
+    <prompt id="act-cluster-summarization">
+        <template>
+            You are a specialized AI for legal analysis.
+            Your task is to generate a summary of the provided text and determine whether the delivered text is
+            irrelevant.
+
+            Text is related to the Polish legal system.
+
+            Text:
+            {text}
+
+            Assess the irrelevancy on a logical flag, where true means the text is irrelevant and false means the text
+            is relevant.
+            It is irrelevant if it is one of many:
+            - an act or document concerning an individual person (e.g. the prime minister appoints a director),
+            - a court judgment, administrative decision, or international agreement,
+            - not a legal document at all (e.g. a newspaper article, a recipe).
+
+            Respond with:
+            1. Concise and straight to the point summary in Polish (200-300 words).
+            2. Logical flag indicating whether the text is irrelevant (true/false).
+
+            {format_instructions}
+        </template>
+    </prompt>
+    <prompt id="doc-summarization">
+        <template>
+            You are a specialized AI for legal analysis.
+            Your task is to generate a summary of the provided text, name it, and determine whether the delivered text
+            is irrelevant.
+
+            Text is related to the Polish legal system.
+
+            Text:
+            {text}
+
+            Assess the irrelevancy on a logical flag, where true means the text is irrelevant and false means the text
+            is relevant.
+            It is irrelevant if it is one of many:
+            - an act or document concerning an individual person (e.g. the prime minister appoints a director),
+            - a court judgment, administrative decision, or international agreement,
+            - not a legal document at all (e.g. a newspaper article, a recipe).
+
+            Respond with:
+            1. Concise and straight to the point summary in Polish (200-300 words).
+            2. Logical flag indicating whether the text is irrelevant (true/false).
+            3. Sentence case title.
+
+            {format_instructions}
+        </template>
+    </prompt>
+</prompts>
