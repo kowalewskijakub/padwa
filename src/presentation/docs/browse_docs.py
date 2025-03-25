@@ -1,5 +1,5 @@
 import streamlit as st
-from presentation.app_state import get_state
+from src.presentation.app_state import get_state
 
 from src.application.dtos.doc_dto import DocProcessedDTO
 
