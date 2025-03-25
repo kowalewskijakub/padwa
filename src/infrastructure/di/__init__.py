@@ -1,3 +1,3 @@
-from infrastructure.di.containers import Container
+from src.infrastructure.di.containers import Container
 
 container = Container()

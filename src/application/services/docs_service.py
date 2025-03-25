@@ -1,14 +1,13 @@
 from typing import Optional
 
-from infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
-from infrastructure.processing.llm.llm_handler import LLMHandler
-from infrastructure.processing.llm.llm_response_models import DocSummaryResponse
-from infrastructure.processing.text.text_processor import get_doc_processors, TextProcessor
-
 from src.application.dtos.doc_dto import DocProcessedDTO, DocChunkDTO
 from src.common.exceptions import EmbeddingError
 from src.common.logging_configurator import get_logger
 from src.domain.models.doc import Doc, DocChunk
+from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
+from src.infrastructure.processing.llm.llm_handler import LLMHandler
+from src.infrastructure.processing.llm.llm_response_models import DocSummaryResponse
+from src.infrastructure.processing.text.text_processor import get_doc_processors, TextProcessor
 from src.infrastructure.repository.core.doc_repository import DocRepository
 from src.infrastructure.repository.embeddable.doc_chunk_repository import DocChunkRepository
 

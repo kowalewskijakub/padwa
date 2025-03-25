@@ -1,7 +1,8 @@
 from typing import Optional, List, Any
 
-from infrastructure.processing.llm.llm_response_models import LLMSummaryResponse
 from pydantic import BaseModel, ConfigDict, AliasChoices, Field
+
+from src.infrastructure.processing.llm.llm_response_models import LLMSummaryResponse
 
 
 class Base(BaseModel):

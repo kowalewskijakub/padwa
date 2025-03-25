@@ -1,17 +1,17 @@
 # wersja: chet-theia
 from typing import Type, Dict, Any, Tuple, Optional, TypeVar
 
-from infrastructure.processing.llm.llm_prompts_retriever import get_llm_prompt_retriever
-from infrastructure.processing.llm.llm_response_models import ActSummaryResponse, LLMResponse, \
-    ActClusterSummaryResponse, \
-    DocSummaryResponse
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_openai import ChatOpenAI
 
 from src.common.batch_processor import BatchProcessor
+from src.infrastructure.processing.llm.llm_prompts_retriever import get_llm_prompt_retriever
+from src.infrastructure.processing.llm.llm_response_models import ActSummaryResponse, LLMResponse, \
+    ActClusterSummaryResponse, \
+    DocSummaryResponse
 
-TLLMResponse = TypeVar("T", bound=LLMResponse)
+TLLMResponse = TypeVar("TLLMResponse", bound=LLMResponse)
 
 
 class LLMHandler:

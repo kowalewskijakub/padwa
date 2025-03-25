@@ -2,12 +2,12 @@
 from contextlib import contextmanager
 from typing import Generator, Dict, Type, Any
 
-from infrastructure.database.orms.base_orm import DictionaryBase
 from sqlmodel import create_engine, Session, SQLModel
 
 from src.common.exceptions import ConnectionError, SessionError, DatabaseError
 from src.common.logging_configurator import get_logger
 from src.infrastructure.database.database_config import DatabaseConfig
+from src.infrastructure.database.orms.base_orm import DictionaryBase
 
 _logger = get_logger()
 _db_connection_string = DatabaseConfig.from_env().connection_url

@@ -1,7 +1,8 @@
 from typing import Optional
 
-from domain.models.base import Base, ChunkBase
 from pydantic import Field, AliasChoices
+
+from src.domain.models.base import Base, ChunkBase
 
 
 class Doc(Base):

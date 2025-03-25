@@ -1,18 +1,17 @@
 # wersja: chet-theia
 from typing import List
 
-from infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
-from infrastructure.processing.embedding.embedding_semantic_clusterer import EmbeddingSemanticClusterer
-from infrastructure.processing.text.text_processor import get_act_processors, TextProcessor
-from infrastructure.repository.functional.act_change_link_repo import ActChangeLinkRepository
-
 from src.application.dtos.act_dto import ActProcessedDTO, ActChunkDTO, ActApiDTO, ConsolidationActDTO
 from src.application.services.clusters_service import ClustersService
 from src.common.exceptions import EntityNotFoundError
 from src.domain.models.act import Act, ActChunk, ActChangeLink
 from src.infrastructure.api.eli_api_client import ELIApiClient
+from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
+from src.infrastructure.processing.embedding.embedding_semantic_clusterer import EmbeddingSemanticClusterer
+from src.infrastructure.processing.text.text_processor import get_act_processors, TextProcessor
 from src.infrastructure.repository.core.act_repository import ActRepository
 from src.infrastructure.repository.embeddable.act_chunk_repository import ActChunkRepository
+from src.infrastructure.repository.functional.act_change_link_repo import ActChangeLinkRepository
 
 
 class ActsService:

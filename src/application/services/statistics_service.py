@@ -1,10 +1,9 @@
 # wersja: chet-theia
-from infrastructure.repository.core.doc_repository import DocRepository
-from infrastructure.repository.embeddable.doc_chunk_repository import DocChunkRepository
-
 from src.application.dtos.statistics_dto import ActStatisticsDTO, DocumentStatisticsDTO
 from src.infrastructure.repository.core.act_repository import ActRepository
+from src.infrastructure.repository.core.doc_repository import DocRepository
 from src.infrastructure.repository.embeddable.act_chunk_repository import ActChunkRepository
+from src.infrastructure.repository.embeddable.doc_chunk_repository import DocChunkRepository
 
 
 class StatisticsService:

@@ -1,23 +1,23 @@
 # wersja: chet-theia
 from dependency_injector import containers, providers
-from infrastructure.api.eli_api_client import ELIApiClient
-from infrastructure.database.database_manager import DatabaseManager
-from infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
-from infrastructure.processing.embedding.embedding_semantic_clusterer import EmbeddingSemanticClusterer
-from infrastructure.processing.llm.llm_handler import LLMHandler
-from infrastructure.processing.llm.llm_iterative_summarizer import LLMIterativeSummarizer
-from infrastructure.repository.core.act_repository import ActRepository
-from infrastructure.repository.core.doc_repository import DocRepository
-from infrastructure.repository.embeddable.act_chunk_cluster_repository import ActChunkClusterRepository
-from infrastructure.repository.embeddable.act_chunk_repository import ActChunkRepository
-from infrastructure.repository.embeddable.doc_chunk_repository import DocChunkRepository
-from infrastructure.repository.functional.act_change_link_repo import ActChangeLinkRepository
 
 from src.application.services.acts_service import ActsService
 from src.application.services.clusters_service import ClustersService
 from src.application.services.dictionaries_service import DictionariesService
 from src.application.services.docs_service import DocsService
 from src.application.services.statistics_service import StatisticsService
+from src.infrastructure.api.eli_api_client import ELIApiClient
+from src.infrastructure.database.database_manager import DatabaseManager
+from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
+from src.infrastructure.processing.embedding.embedding_semantic_clusterer import EmbeddingSemanticClusterer
+from src.infrastructure.processing.llm.llm_handler import LLMHandler
+from src.infrastructure.processing.llm.llm_iterative_summarizer import LLMIterativeSummarizer
+from src.infrastructure.repository.core.act_repository import ActRepository
+from src.infrastructure.repository.core.doc_repository import DocRepository
+from src.infrastructure.repository.embeddable.act_chunk_cluster_repository import ActChunkClusterRepository
+from src.infrastructure.repository.embeddable.act_chunk_repository import ActChunkRepository
+from src.infrastructure.repository.embeddable.doc_chunk_repository import DocChunkRepository
+from src.infrastructure.repository.functional.act_change_link_repo import ActChangeLinkRepository
 from src.presentation.app_config import AppConfig
 
 

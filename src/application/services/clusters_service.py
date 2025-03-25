@@ -1,13 +1,12 @@
 from typing import Optional, List, TypeVar, Type
 
-from infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
-from infrastructure.processing.llm.llm_iterative_summarizer import LLMIterativeSummarizer
-from infrastructure.processing.llm.llm_response_models import LLMSummaryResponse, ActClusterSummaryResponse
-
 from src.application.dtos.act_dto import ActProcessedDTO
 from src.common.exceptions import EntityNotFoundError, EmbeddingError
 from src.common.logging_configurator import get_logger
 from src.domain.models.base import EmbeddableBase, ChunkClusterBase, Base
+from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
+from src.infrastructure.processing.llm.llm_iterative_summarizer import LLMIterativeSummarizer
+from src.infrastructure.processing.llm.llm_response_models import LLMSummaryResponse, ActClusterSummaryResponse
 from src.infrastructure.repository.base_repository import BaseRepository
 from src.infrastructure.repository.core.act_repository import ActRepository
 from src.infrastructure.repository.embeddable.act_chunk_cluster_repository import ActChunkClusterRepository
