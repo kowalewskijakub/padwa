@@ -1,9 +1,9 @@
 from typing import Optional
 
-from src.application.dtos.doc_dto import DocProcessedDTO, DocChunkDTO
 from src.common.exceptions import EmbeddingError
 from src.common.logging_configurator import get_logger
-from src.domain.models.doc import Doc, DocChunk
+from src.core.dtos.doc_dto import DocProcessedDTO, DocChunkDTO
+from src.core.models.doc import Doc, DocChunk
 from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
 from src.infrastructure.processing.llm.llm_handler import LLMHandler
 from src.infrastructure.processing.llm.llm_response_models import DocSummaryResponse

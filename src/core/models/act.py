@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import Field, AliasChoices
 from regex import regex
 
-from src.domain.models.base import Base, ChunkBase, ChunkClusterBase
+from src.core.models.base import Base, ChunkBase, ChunkClusterBase
 
 
 class Act(Base):

@@ -9,7 +9,7 @@ from wordcloud import WordCloud
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 
-from src.application.dtos.statistics_dto import ActStatisticsDTO, DocumentStatisticsDTO
+from src.core.dtos.statistics_dto import ActStatisticsDTO, DocumentStatisticsDTO
 from src.presentation.app_config import AppConfig
 from src.presentation.app_state import initialize_state, get_state
 

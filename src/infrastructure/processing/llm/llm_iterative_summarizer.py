@@ -1,7 +1,7 @@
 from typing import TypeVar, Type, Generator
 
 from src.common.logging_configurator import get_logger
-from src.domain.models.base import ChunkBase, ChunkClusterBase
+from src.core.models.base import ChunkBase, ChunkClusterBase
 from src.infrastructure.processing.embedding.embedding_semantic_clusterer import EmbeddingSemanticClusterer
 from src.infrastructure.processing.llm.llm_handler import LLMHandler
 from src.infrastructure.processing.llm.llm_response_models import LLMSummaryResponse

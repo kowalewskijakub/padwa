@@ -3,7 +3,7 @@ from typing import List
 from sqlalchemy import or_
 from sqlalchemy.sql.operators import is_
 
-from src.domain.models.doc import Doc as DocDomain
+from src.core.models.doc import Doc as DocDomain
 from src.infrastructure.database.database_manager import DatabaseManager
 from src.infrastructure.database.orms.doc_orm import Doc as DocORM
 from src.infrastructure.repository.base_repository import BaseRepository

@@ -1,7 +1,7 @@
 from typing import List
 
 from src.common.logging_configurator import get_logger
-from src.domain.models.act import ActChunkCluster as ActChunkClusterDomain
+from src.core.models.act import ActChunkCluster as ActChunkClusterDomain
 from src.infrastructure.database.database_manager import DatabaseManager
 from src.infrastructure.database.orms.act_orm import ActChunkCluster as ActChunkClusterORM, ActChunkClusterLink, \
     ActChunk as ActChunkORM

@@ -1,6 +1,6 @@
 from typing import List
 
-from src.domain.models.doc import DocChunk as DocChunkDomain
+from src.core.models.doc import DocChunk as DocChunkDomain
 from src.infrastructure.database.database_manager import DatabaseManager
 from src.infrastructure.database.orms.doc_orm import DocChunk as DocChunkORM
 from src.infrastructure.repository.embeddable.embeddable_base_repository import EmbeddableBaseRepository

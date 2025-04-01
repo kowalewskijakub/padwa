@@ -5,7 +5,7 @@ from sqlalchemy import func, and_, or_
 from sqlalchemy.sql.operators import is_
 from sqlmodel import Session
 
-from src.domain.models.act import Act as ActDomain
+from src.core.models.act import Act as ActDomain
 from src.infrastructure.database.database_manager import DatabaseManager
 from src.infrastructure.database.orms.act_orm import ActType, ActStatus, Act as ActORM
 from src.infrastructure.repository.base_repository import BaseRepository

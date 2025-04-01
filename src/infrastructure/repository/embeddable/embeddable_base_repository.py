@@ -1,7 +1,7 @@
 # wersja: chet-theia
 from typing import TypeVar, Generic, List, Type
 
-from src.domain.models.base import EmbeddableBase
+from src.core.models.base import EmbeddableBase
 from src.infrastructure.database.database_manager import DatabaseManager
 from src.infrastructure.database.orms.base_orm import EmbeddableBase as EmbeddableBaseORM
 from src.infrastructure.repository.base_repository import BaseRepository

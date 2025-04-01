@@ -1,7 +1,7 @@
 # wersja: chet-theia
 from typing import List
 
-from src.domain.models.act import ActChunk as ActChunkDomain
+from src.core.models.act import ActChunk as ActChunkDomain
 from src.infrastructure.database.database_manager import DatabaseManager
 from src.infrastructure.database.orms.act_orm import ActChunk as ActChunkORM
 from src.infrastructure.repository.embeddable.embeddable_base_repository import EmbeddableBaseRepository

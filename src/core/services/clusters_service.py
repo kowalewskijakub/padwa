@@ -1,9 +1,9 @@
 from typing import Optional, List, TypeVar, Type
 
-from src.application.dtos.act_dto import ActProcessedDTO
 from src.common.exceptions import EntityNotFoundError, EmbeddingError
 from src.common.logging_configurator import get_logger
-from src.domain.models.base import EmbeddableBase, ChunkClusterBase, Base
+from src.core.dtos.act_dto import ActProcessedDTO
+from src.core.models.base import EmbeddableBase, ChunkClusterBase, Base
 from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
 from src.infrastructure.processing.llm.llm_iterative_summarizer import LLMIterativeSummarizer
 from src.infrastructure.processing.llm.llm_response_models import LLMSummaryResponse, ActClusterSummaryResponse

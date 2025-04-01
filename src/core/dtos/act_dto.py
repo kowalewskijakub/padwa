@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any, List, Tuple
 
 from pydantic import ConfigDict, Field, AliasChoices
 
-from src.application.dtos.base_dto import BaseDTO
+from src.core.dtos.base_dto import BaseDTO
 
 
 class ActChunkDTO(BaseDTO):

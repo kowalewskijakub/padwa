@@ -1,7 +1,7 @@
 import streamlit as st
-from src.presentation.app_state import get_state
 
-from src.application.dtos.act_dto import ActProcessedDTO
+from src.core.dtos.act_dto import ActProcessedDTO
+from src.presentation.app_state import get_state
 
 
 def render_act_card(act: ActProcessedDTO) -> None:

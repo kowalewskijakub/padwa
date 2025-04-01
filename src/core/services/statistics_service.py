@@ -1,5 +1,5 @@
 # wersja: chet-theia
-from src.application.dtos.statistics_dto import ActStatisticsDTO, DocumentStatisticsDTO
+from src.core.dtos.statistics_dto import ActStatisticsDTO, DocumentStatisticsDTO
 from src.infrastructure.repository.core.act_repository import ActRepository
 from src.infrastructure.repository.core.doc_repository import DocRepository
 from src.infrastructure.repository.embeddable.act_chunk_repository import ActChunkRepository

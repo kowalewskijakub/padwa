@@ -1,10 +1,10 @@
 # wersja: chet-theia
 from typing import List
 
-from src.application.dtos.act_dto import ActProcessedDTO, ActChunkDTO, ActApiDTO, ConsolidationActDTO
-from src.application.services.clusters_service import ClustersService
 from src.common.exceptions import EntityNotFoundError
-from src.domain.models.act import Act, ActChunk, ActChangeLink
+from src.core.dtos.act_dto import ActProcessedDTO, ActChunkDTO, ActApiDTO, ConsolidationActDTO
+from src.core.models.act import Act, ActChunk, ActChangeLink
+from src.core.services.clusters_service import ClustersService
 from src.infrastructure.api.eli_api_client import ELIApiClient
 from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
 from src.infrastructure.processing.embedding.embedding_semantic_clusterer import EmbeddingSemanticClusterer

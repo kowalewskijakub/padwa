@@ -2,7 +2,7 @@
 from datetime import date
 from typing import List, Optional, Dict, Tuple
 
-from src.application.dtos.act_dto import ActApiDTO
+from src.core.dtos.act_dto import ActApiDTO
 from src.infrastructure.api.base_api_client import BaseApiClient
 
 

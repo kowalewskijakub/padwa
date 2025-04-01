@@ -1,11 +1,11 @@
 # wersja: chet-theia
 from dependency_injector import containers, providers
 
-from src.application.services.acts_service import ActsService
-from src.application.services.clusters_service import ClustersService
-from src.application.services.dictionaries_service import DictionariesService
-from src.application.services.docs_service import DocsService
-from src.application.services.statistics_service import StatisticsService
+from src.core.services.acts_service import ActsService
+from src.core.services.clusters_service import ClustersService
+from src.core.services.dictionaries_service import DictionariesService
+from src.core.services.docs_service import DocsService
+from src.core.services.statistics_service import StatisticsService
 from src.infrastructure.api.eli_api_client import ELIApiClient
 from src.infrastructure.database.database_manager import DatabaseManager
 from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler

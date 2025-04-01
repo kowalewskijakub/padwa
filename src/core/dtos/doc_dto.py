@@ -2,7 +2,7 @@ from typing import Optional, List
 
 from pydantic import ConfigDict, Field, AliasChoices
 
-from src.application.dtos.base_dto import BaseDTO
+from src.core.dtos.base_dto import BaseDTO
 
 
 class DocChunkDTO(BaseDTO):

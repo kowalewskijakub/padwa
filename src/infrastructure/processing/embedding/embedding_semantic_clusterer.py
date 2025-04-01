@@ -4,7 +4,7 @@ from typing import List, TypeVar, Generic
 import numpy as np
 from sklearn.cluster import KMeans
 
-from src.domain.models.base import ChunkBase, ChunkClusterBase
+from src.core.models.base import ChunkBase, ChunkClusterBase
 from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
 from src.infrastructure.repository.embeddable.act_chunk_repository import ActChunkRepository
 

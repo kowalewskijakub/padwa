@@ -1,7 +1,7 @@
 import streamlit as st
-from src.presentation.app_state import get_state
 
-from src.application.dtos.doc_dto import DocProcessedDTO
+from src.core.dtos.doc_dto import DocProcessedDTO
+from src.presentation.app_state import get_state
 
 
 def render_doc_card(doc: DocProcessedDTO) -> None:

@@ -4,11 +4,11 @@ from typing import Optional
 
 import streamlit as st
 
-from src.application.services.acts_service import ActsService
-from src.application.services.dictionaries_service import DictionariesService
-from src.application.services.docs_service import DocsService
-from src.application.services.statistics_service import StatisticsService
 from src.common.exceptions import ApplicationError
+from src.core.services.acts_service import ActsService
+from src.core.services.dictionaries_service import DictionariesService
+from src.core.services.docs_service import DocsService
+from src.core.services.statistics_service import StatisticsService
 from src.infrastructure.di import container
 
 

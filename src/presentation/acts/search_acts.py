@@ -1,7 +1,7 @@
 # wersja: chet-theia
 import streamlit as st
 
-from src.application.dtos.act_dto import ActApiDTO
+from src.core.dtos.act_dto import ActApiDTO
 from src.presentation.app_state import get_state
 
 

@@ -2,7 +2,7 @@
 from dataclasses import field
 from typing import Dict
 
-from src.application.dtos.base_dto import BaseDTO
+from src.core.dtos.base_dto import BaseDTO
 
 
 class StatisticsDTO(BaseDTO):

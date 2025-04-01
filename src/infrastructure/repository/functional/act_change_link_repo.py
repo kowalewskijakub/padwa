@@ -1,5 +1,5 @@
 # wersja: chet-theia
-from src.domain.models.act import ActChangeLink as ActChangeLinkDomain
+from src.core.models.act import ActChangeLink as ActChangeLinkDomain
 from src.infrastructure.database.database_manager import DatabaseManager
 from src.infrastructure.database.orms.act_orm import ActChangeLink as ActChangeLinkORM
 from src.infrastructure.repository.base_repository import BaseRepository
