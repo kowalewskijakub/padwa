@@ -1,6 +1,7 @@
 # wersja: chet-theia
 from dependency_injector import containers, providers
 
+from src.core.services.act_comparisons_service import ActComparisonsService
 from src.core.services.acts_service import ActsService
 from src.core.services.clusters_service import ClustersService
 from src.core.services.dictionaries_service import DictionariesService
@@ -17,6 +18,7 @@ from src.infrastructure.repository.core.doc_repository import DocRepository
 from src.infrastructure.repository.embeddable.act_chunk_cluster_repository import ActChunkClusterRepository
 from src.infrastructure.repository.embeddable.act_chunk_repository import ActChunkRepository
 from src.infrastructure.repository.embeddable.doc_chunk_repository import DocChunkRepository
+from src.infrastructure.repository.functional.act_change_analysis_repo import ActChangeAnalysisRepository
 from src.infrastructure.repository.functional.act_change_link_repo import ActChangeLinkRepository
 from src.presentation.app_config import AppConfig
 
@@ -74,6 +76,11 @@ class Container(containers.DeclarativeContainer):
     # Infrastruktura - repozytoria (functional)
     act_change_link_repository = providers.Singleton(
         ActChangeLinkRepository,
+        db_manager=db_manager
+    )
+
+    act_change_analysis_repository = providers.Singleton(
+        ActChangeAnalysisRepository,
         db_manager=db_manager
     )
 
@@ -144,4 +151,11 @@ class Container(containers.DeclarativeContainer):
         DictionariesService,
         db_manager=db_manager,
         api_client=api_client
+    )
+
+    act_comparisons_service = providers.Singleton(
+        ActComparisonsService,
+        act_chunk_repo=act_chunk_repository,
+        act_change_link_repo=act_change_link_repository,
+        act_change_analysis_repo=act_change_analysis_repository,
     )

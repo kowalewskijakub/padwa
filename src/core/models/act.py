@@ -55,3 +55,15 @@ class ActChangeLink(Base):
     """
     changing_act_id: int
     changed_act_id: int
+
+class ActChangeAnalysis(Base):
+    """
+    Model reprezentujący analizę zmian między fragmentami aktów prawnych.
+    """
+    changing_act_id: int
+    changed_act_id: int
+    changing_chunk_id: Optional[int] = None
+    changed_chunk_id: Optional[int] = None
+    change_type: str
+    relevancy: Optional[float] = 0.0
+    justification: Optional[str] = ""

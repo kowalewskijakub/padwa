@@ -5,6 +5,7 @@ from typing import Optional
 import streamlit as st
 
 from src.common.exceptions import ApplicationError
+from src.core.services.act_comparisons_service import ActComparisonsService
 from src.core.services.acts_service import ActsService
 from src.core.services.dictionaries_service import DictionariesService
 from src.core.services.docs_service import DocsService
@@ -27,6 +28,7 @@ class AppState:
     docs_service: Optional[DocsService] = None
     statistics_service: Optional[StatisticsService] = None
     dictionaries_service: Optional[DictionariesService] = None
+    act_comparisons_service: Optional[ActComparisonsService] = None
 
 
 def get_state() -> AppState:
@@ -57,6 +59,7 @@ def initialize_state() -> bool:
         state.docs_service = container.docs_service()
         state.statistics_service = container.statistics_service()
         state.dictionaries_service = container.dictionaries_service()
+        state.act_comparisons_service = container.act_comparisons_service()
 
         # Inicjalizacja bazy danych
         # db_manager = container.db_manager()

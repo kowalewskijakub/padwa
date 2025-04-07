@@ -80,6 +80,24 @@ class BaseRepository(ABC, Generic[TORM, TDomain]):
         """
         return session.query(self.orm_class).get(entity_id)
 
+    def bulk_get_by_ids(self, entity_ids: List[Any]) -> List[TDomain]:
+        """
+        Pobiera wiele encji na podstawie ich identyfikatorów w jednym zapytaniu.
+
+        :param entity_ids: Lista identyfikatorów encji
+        :return: Lista modeli domenowych odpowiadających podanym identyfikatorom
+        """
+        if not entity_ids:
+            return []
+
+        with self.db.session_scope() as session:
+            orm_objs = (
+                session.query(self.orm_class)
+                .filter(self.orm_class.id.in_(entity_ids))
+                .all()
+            )
+            return self._to_domain_list(orm_objs)
+
     def get_by_id(self, entity_id: Any) -> Optional[TDomain]:
         """
         Pobiera encję na podstawie jej klucza głównego (ID).

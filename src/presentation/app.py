@@ -110,6 +110,7 @@ if initialized:
         "Akty prawne": [
             st.Page("acts/search_acts.py", title="Wyszukaj", icon=":material/search:"),
             st.Page("acts/browse_acts.py", title="Obserwowane", icon=":material/folder:"),
+            st.Page("acts/compare_acts.py", title="Porównaj", icon=":material/compare:"),
         ],
         "Dokumentacja": [
             st.Page("docs/add_docs.py", title="Dodaj", icon=":material/add:"),

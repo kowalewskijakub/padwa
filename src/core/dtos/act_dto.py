@@ -60,3 +60,18 @@ class ActProcessedDTO(ActDTO):
     summary: Optional[str] = None
     flag: Optional[bool] = False
     status: Optional[str] = None
+
+class ActChangeAnalysisDTO(BaseDTO):
+    """
+    DTO reprezentujące wyniki analizy zmian między fragmentami aktów prawnych.
+    """
+    id: Optional[int] = None
+    changing_act_id: int
+    changed_act_id: int
+    changing_chunk_id: Optional[int] = None
+    changed_chunk_id: Optional[int] = None
+    change_type: str
+    relevancy: float
+    justification: str
+    changing_chunk_text: Optional[str] = None
+    changed_chunk_text: Optional[str] = None
