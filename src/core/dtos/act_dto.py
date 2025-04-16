@@ -61,6 +61,26 @@ class ActProcessedDTO(ActDTO):
     flag: Optional[bool] = False
     status: Optional[str] = None
 
+
+class ActChangeImpactAnalysisDTO(BaseDTO):
+    """
+    DTO reprezentujące wyniki analizy wpływu zmiany w akcie prawnym na fragment dokumentu.
+
+    :param id: Identyfikator analizy wpływu
+    :param change_analysis_id: ID analizy zmiany (FK do ActChangeAnalysis)
+    :param doc_chunk_id: ID fragmentu dokumentu
+    :param relevancy Wynik podobieństwa semantycznego
+    :param justification: Uzasadnienie oceny wpływu
+    :param doc_chunk_text: Tekst fragmentu dokumentu
+    """
+    id: Optional[int] = None
+    change_analysis_id: int
+    doc_chunk_id: int
+    relevancy: float
+    justification: str
+    doc_chunk_text: str
+
+
 class ActChangeAnalysisDTO(BaseDTO):
     """
     DTO reprezentujące wyniki analizy zmian między fragmentami aktów prawnych.
@@ -75,3 +95,4 @@ class ActChangeAnalysisDTO(BaseDTO):
     justification: str
     changing_chunk_text: Optional[str] = None
     changed_chunk_text: Optional[str] = None
+    impacts: Optional[List[ActChangeImpactAnalysisDTO]] = None

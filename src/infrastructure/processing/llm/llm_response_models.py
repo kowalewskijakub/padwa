@@ -10,6 +10,18 @@ class LLMSummaryResponse(LLMResponse):
     pass
 
 
+class ImpactAssessmentResponse(LLMResponse):
+    """
+    Klasa odpowiedzi LLM dla oceny wpływu zmiany.
+    """
+    relevancy: float = Field(
+        description="Ocena wpływu zmiany w akcie prawnym na fragment dokumentu."
+    )
+    justification: str = Field(
+        description="Uzasadnienie oceny wpływu zmiany w akcie prawnym na fragment dokumentu."
+    )
+
+
 class ActSummaryResponse(LLMSummaryResponse):
     """
     Model odpowiedzi LLM dla podsumowania aktu prawnego.
@@ -17,7 +29,6 @@ class ActSummaryResponse(LLMSummaryResponse):
     Zawiera podsumowanie dostarczonego aktu prawnego oraz flagę sygnalizującą, że dostarczony tekst
     powinien być pominięty w kontekście przyjętej domeny.
     """
-
     summary: str = Field(
         description="Podsumowanie dostarczonego aktu prawnego, ok. 300 znaków."
     )
@@ -37,7 +48,6 @@ class DocSummaryResponse(LLMSummaryResponse):
     Zawiera podsumowanie dostarczonego dokumentu oraz flagę sygnalizującą, że dostarczony tekst
     powinien być pominięty w kontekście przyjętej domeny.
     """
-
     title: str = Field(
         description="Tytuł dostarczonego dokumentu."
     )
@@ -60,7 +70,6 @@ class ClusterSummaryResponse(LLMSummaryResponse):
     Zawiera podsumowanie dostarczonych przepisów oraz flagę sygnalizującą, że dostarczony tekst
     powinien być pominięty w kontekście przyjętej domeny.
     """
-
     summary: str = Field(
         description="Podsumowanie dostarczonych przepisów, ok. 300 znaków."
     )

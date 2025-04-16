@@ -1,10 +1,10 @@
-# wersja: chet-theia
 from dataclasses import dataclass
 from typing import Optional
 
 import streamlit as st
 
 from src.common.exceptions import ApplicationError
+from src.core.services.act_change_impact_service import ActChangeImpactService
 from src.core.services.act_comparisons_service import ActComparisonsService
 from src.core.services.acts_service import ActsService
 from src.core.services.dictionaries_service import DictionariesService
@@ -29,6 +29,7 @@ class AppState:
     statistics_service: Optional[StatisticsService] = None
     dictionaries_service: Optional[DictionariesService] = None
     act_comparisons_service: Optional[ActComparisonsService] = None
+    act_change_impact_service: Optional[ActChangeImpactService] = None
 
 
 def get_state() -> AppState:
@@ -60,6 +61,7 @@ def initialize_state() -> bool:
         state.statistics_service = container.statistics_service()
         state.dictionaries_service = container.dictionaries_service()
         state.act_comparisons_service = container.act_comparisons_service()
+        state.act_change_impact_service = container.act_change_impact_service()
 
         # Inicjalizacja bazy danych
         # db_manager = container.db_manager()

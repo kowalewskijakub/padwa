@@ -24,7 +24,7 @@ class ActsService:
             act_change_link_repo: ActChangeLinkRepository,
             embedding_handler: EmbeddingHandler,
             embedding_semantic_clusterer: EmbeddingSemanticClusterer,
-            cluster_orchestrator: ClustersService,
+            clusters_service: ClustersService,
     ):
         """
         Inicjalizuje serwis aktów prawnych.
@@ -35,7 +35,7 @@ class ActsService:
         :param act_change_link_repo: Repozytorium do zarządzania relacjami zmian aktów
         :param embedding_handler: Serwis do zarządzania embedingami
         :param embedding_semantic_clusterer: Serwis do grupowania semantycznego
-        :param cluster_orchestrator: Orchestrator klastrów
+        :param clusters_service: Serwis do zarządzania klastrami
         """
         self.api_client = api_client
         self.act_repo = act_repo
@@ -43,7 +43,7 @@ class ActsService:
         self.act_change_link_repo = act_change_link_repo
         self.embedding_handler = embedding_handler
         self.embedding_semantic_clusterer = embedding_semantic_clusterer
-        self.cluster_orchestrator = cluster_orchestrator
+        self.clusters_service = clusters_service
 
     def get_by_identifier(self, publisher: str, year: int, position: int) -> ActApiDTO:
         """
@@ -250,7 +250,8 @@ class ActsService:
         chunks = TextProcessor.process_document(
             act_pdf,
             chunking_function=chunking_function,
-            element_processors=element_processors
+            element_processors=element_processors,
+            min_font_size=10.0
         )
 
         self.act_chunk_repo.bulk_create(
@@ -261,7 +262,7 @@ class ActsService:
         self.update_missing_embeddings()
 
         # 5. Generuje podsumowanie dla aktu prawnego
-        self.cluster_orchestrator.generate_act_summary(act.id)
+        self.clusters_service.generate_act_summary(act.id)
 
         # 6. Przetwarza relacje aktu z innymi aktami
         self._process_act_relationships(act.id, act_dto)

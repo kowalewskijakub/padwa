@@ -1,5 +1,6 @@
-# wersja: chet-theia
 from typing import TypeVar, Generic, List, Type
+
+import numpy as np
 
 from src.core.models.base import EmbeddableBase
 from src.infrastructure.database.database_manager import DatabaseManager
@@ -55,3 +56,26 @@ class EmbeddableBaseRepository(BaseRepository[TEmbeddableORM, TEmbeddableDomain]
                 .all()
             )
             return self._to_domain_list(entities)
+
+    def get_top_n_similar(self, embedding: List[float], n: int = 5) -> List[TEmbeddableDomain]:
+        """
+        Pobiera n najbardziej podobnych encji do zadanego embeddingu.
+
+        :param embedding: Wektor embeddingu
+        :param n: Liczba encji do zwrócenia
+        :return: Lista najbardziej podobnych encji jako modele domenowe
+        """
+        with self.db.session_scope() as session:
+            all_entities = session.query(self.orm_class).filter(self.orm_class.embedding.isnot(None)).all()
+
+            similarities = []
+            for entity in all_entities:
+                entity_embedding = entity.embedding
+                similarity = np.dot(embedding, entity_embedding) / (
+                        np.linalg.norm(embedding) * np.linalg.norm(entity_embedding))
+                similarities.append((entity, similarity))
+
+            similarities.sort(key=lambda x: x[1], reverse=True)
+
+            top_entities = [entity for entity, _ in similarities[:n]]
+            return self._to_domain_list(top_entities)

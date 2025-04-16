@@ -66,7 +66,7 @@ def render_act_add_listing(act: ActApiDTO) -> None:
                 st.error("Nie udało się dodać aktu prawnego.")
 
 
-st.header("Wyszukaj akt prawny")
+st.header("Wyszukiwanie aktów prawnych")
 st.markdown("""
 Wyszukaj akt prawny na podstawie nazwy lub jej fragmentu. 
 Znalezione akty możesz dodać do listy obserwowanych.

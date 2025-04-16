@@ -1,4 +1,3 @@
-# wersja: chet-theia
 from typing import Type, Dict, Any, Tuple, Optional, TypeVar
 
 from langchain.prompts import ChatPromptTemplate
@@ -9,7 +8,7 @@ from src.common.batch_processor import BatchProcessor
 from src.infrastructure.processing.llm.llm_prompts_retriever import get_llm_prompt_retriever
 from src.infrastructure.processing.llm.llm_response_models import ActSummaryResponse, LLMResponse, \
     ActClusterSummaryResponse, \
-    DocSummaryResponse
+    DocSummaryResponse, ImpactAssessmentResponse
 
 TLLMResponse = TypeVar("TLLMResponse", bound=LLMResponse)
 
@@ -22,11 +21,11 @@ class LLMHandler:
     modelami językowymi i parsowaniem wyjść.
     """
 
-    # Mapowanie modeli wyjściowych do identyfikatorów promptów
     _prompt_mapping = {
         ActSummaryResponse: "act-summarization",
         ActClusterSummaryResponse: "act-cluster-summarization",
         DocSummaryResponse: "doc-summarization",
+        ImpactAssessmentResponse: "impact-assessment",
     }
 
     def __init__(self, model_name):

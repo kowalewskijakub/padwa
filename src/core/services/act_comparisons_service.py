@@ -1,13 +1,16 @@
 from typing import List
+
 import numpy as np
+
 from src.core.dtos.act_dto import ActChangeAnalysisDTO
 from src.core.models.act import ActChunk, ActChangeAnalysis
-from src.infrastructure.repository.functional.act_change_link_repo import ActChangeLinkRepository
 from src.infrastructure.repository.embeddable.act_chunk_repository import ActChunkRepository
 from src.infrastructure.repository.functional.act_change_analysis_repo import ActChangeAnalysisRepository
+from src.infrastructure.repository.functional.act_change_link_repo import ActChangeLinkRepository
 
 MIN_SIMILARITY_THRESHOLD = 0.95
 MAX_SIMILARITY_THRESHOLD = 0.85
+
 
 class ActComparisonsService:
     def __init__(

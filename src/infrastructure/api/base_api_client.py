@@ -50,16 +50,12 @@ class BaseApiClient(Generic[TBaseDTO], ABC):
         """
         url = f"{self.base_url}/{endpoint}"
 
-        try:
-            response = self.session.request(
-                method=method,
-                url=url,
-                params=params,
-                json=data,
-                headers=headers,
-                timeout=timeout
-            )
-            response.raise_for_status()
-            return response
-        except RequestException as e:
-            raise APIError(f"Żądanie API do {url} nie powiodło się.")
+        response = self.session.request(
+            method=method,
+            url=url,
+            params=params,
+            json=data,
+            headers=headers,
+            timeout=timeout
+        )
+        return response

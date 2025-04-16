@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 from typing import List, Optional, Tuple, Dict, Callable, Union
 
-from langchain_community.document_loaders import PyMuPDFLoader
+import fitz
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from src.common.batch_processor import BatchProcessor
@@ -18,50 +18,58 @@ _logger = get_logger()
 class TextProcessor:
     """
     Klasa do przetwarzania plików PDF.
-    Wyodrębnia tekst i dzieli go na fragmenty używając PyMuPDF poprzez LangChain.
+    Wyodrębnia tekst i dzieli go na fragmenty używając PyMuPDF.
     """
 
     @staticmethod
     def _extract_text_from_pdf(
             pdf_path: str,
             element_processors: List[Callable[[str], str]] = None,
-            extract_by_page: bool = False
+            extract_by_page: bool = False,
+            min_font_size: Optional[float] = None
     ) -> Union[str, List[str]]:
         """
-        Wyodrębnia tekst z dokumentu PDF przy użyciu PyMuPDF poprzez LangChain.
+        Wyodrębnia tekst z dokumentu PDF przy użyciu PyMuPDF.
 
         :param pdf_path: Ścieżka do pliku PDF
         :param element_processors: Lista funkcji do przetwarzania indywidualnych elementów tekstu
         :param extract_by_page: Czy wyodrębniać tekst strona po stronie (True) czy cały dokument naraz (False)
+        :param min_font_size: Minimalny rozmiar czcionki do uwzględnienia (opcjonalny)
         :return: Pełny tekst dokumentu lub lista tekstów stron
         :raises TextProcessingError: Gdy nie udało się wyodrębnić tekstu
         """
         try:
-            loader = PyMuPDFLoader(pdf_path)
-            documents = loader.load()
+            doc = fitz.open(pdf_path)
+            result = []
 
-            if extract_by_page:
-                result = []
-                for doc in documents:
-                    page_text = doc.page_content
+            for page in doc:
+                blocks = page.get_text("dict")["blocks"]
+                page_text = ""
 
-                    # Zastosowanie procesorów dla pojedynczej strony
-                    if element_processors:
-                        for processor in element_processors:
-                            page_text = processor(page_text)
+                for block in blocks:
+                    if block["type"] == 0:  # Typ 0 oznacza tekst
+                        for line in block["lines"]:
+                            for span in line["spans"]:
+                                if min_font_size is None or span["size"] >= min_font_size:
+                                    page_text += span["text"]
 
-                    result.append(page_text)
-                return result
-            else:
-                # Połącz cały tekst
-                full_text = "\n\n".join(doc.page_content for doc in documents)
-
-                # Zastosowanie procesorów dla całego tekstu
+                # Zastosowanie procesorów dla pojedynczej strony
                 if element_processors:
                     for processor in element_processors:
-                        full_text = processor(full_text)
+                        page_text = processor(page_text)
 
-                return full_text.strip()
+                if extract_by_page:
+                    result.append(page_text)
+                else:
+                    result.append(page_text)
+
+            doc.close()
+
+            if extract_by_page:
+                return result
+            else:
+                full_text = "\n\n".join(result).strip()
+                return full_text
 
         except Exception as e:
             _logger.error(f"Błąd podczas wyodrębniania tekstu z PDF: {str(e)}")
@@ -71,7 +79,8 @@ class TextProcessor:
     def process_document(
             document_content: bytes,
             chunking_function: Optional[Callable[[str], List[str]]] = None,
-            element_processors: List[Callable[[str], str]] = None
+            element_processors: List[Callable[[str], str]] = None,
+            min_font_size: Optional[float] = None
     ) -> Optional[List[str]]:
         """
         Przetwarza dokument i wyodrębnia fragmenty tekstu.
@@ -80,6 +89,7 @@ class TextProcessor:
         :param document_content: Zawartość dokumentu jako bajty
         :param chunking_function: Funkcja dzieląca pełny tekst na fragmenty
         :param element_processors: Lista funkcji przetwarzających pojedyncze elementy tekstu (string → string)
+        :param min_font_size: Minimalny rozmiar czcionki do uwzględnienia
         :return: Lista fragmentów tekstu
         :raises TextProcessingError: Gdy przetwarzanie dokumentu się nie powiedzie
         """
@@ -96,7 +106,8 @@ class TextProcessor:
             full_text = TextProcessor._extract_text_from_pdf(
                 str(temp_path),
                 element_processors,
-                extract_by_page=False
+                extract_by_page=False,
+                min_font_size=min_font_size
             )
 
             if chunking_function:  # Jeśli podano funkcję do chunking, użyj jej
@@ -126,7 +137,8 @@ class TextProcessor:
     def bulk_process_documents(
             document_files: List[Tuple[str, bytes]],
             chunking_function: Optional[Callable[[str], List[str]]] = None,
-            element_processors: List[Callable[[str], str]] = None
+            element_processors: List[Callable[[str], str]] = None,
+            min_font_size: Optional[float] = None
     ) -> Optional[Dict[str, List[str]]]:
         """
         Przetwarza wiele dokumentów równolegle i wyodrębnia fragmenty tekstu z każdego z nich.
@@ -134,10 +146,11 @@ class TextProcessor:
         :param document_files: Lista krotek (identyfikator, zawartość pliku jako bajty)
         :param chunking_function: Funkcja dzieląca pełny tekst na fragmenty (string → list of strings)
         :param element_processors: Lista funkcji przetwarzających pojedyncze elementy tekstu (string → string)
+        :param min_font_size: Minimalny rozmiar czcionki do uwzględnienia
         :return: Słownik mapujący identyfikatory na listy fragmentów tekstu
         """
         processor_func = lambda content: TextProcessor.process_document(
-            content, chunking_function, element_processors
+            content, chunking_function, element_processors, min_font_size
         )
 
         with BatchProcessor(processor_func) as processor:

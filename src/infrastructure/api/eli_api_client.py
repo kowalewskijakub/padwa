@@ -108,13 +108,21 @@ class ELIApiClient(BaseApiClient[ActApiDTO]):
 
     def get_act_pdf(self, publisher: str, year: int, position: int) -> Optional[bytes]:
         """
-        Pobiera zawartość PDF konkretnego aktu.
+        Pobiera zawartość PDF konkretnego aktu. Jeżeli istnieje tekst w wersji L to preferuje go ponad wynik
+        zapytania do /text.pdf.
 
         :param publisher: Kod wydawcy (np. 'DU')
         :param year: Rok publikacji
         :param position: Pozycja w publikacji
         :return: Zawartość PDF jako bajty, jeśli znaleziono, None w przeciwnym razie
         """
+
+        if publisher == "DU":
+            position_filled = str(position).zfill(4)  # Pozycja wypełniona zerami do 4 cyfr
+            l_text = self._make_request(f"acts/{publisher}/{year}/{position}/text/T/D{year}{position_filled}L.pdf")
+            if l_text.status_code == 200:
+                return l_text.content
+
         response = self._make_request(f"acts/{publisher}/{year}/{position}/text.pdf")
         return response.content
 

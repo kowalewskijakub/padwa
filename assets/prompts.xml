@@ -2,26 +2,21 @@
 <prompts>
     <prompt id="act-summarization">
         <template>
-            You are a specialized AI for legal analysis.
-            Your task is to generate a summary of the provided text and determine whether the delivered text is
-            irrelevant.
+            Jesteś wyspecjalizowanym modelem AI do analizy tekstów związanych z polskim systemem prawnym.
+            Twoim zadaniem jest wygenerowanie podsumowania podanego tekstu oraz określenie, czy jest on istotny
+            jako akt prawny o powszechnym zastosowaniu.
 
-            Text is related to the Polish legal system.
-
-            Text:
+            Tekst:
             {text}
 
-            Assess the irrelevancy on a logical flag, where true means the text is irrelevant and false means the text
-            is relevant.
-            It is irrelevant if it is one of many:
-            - an act or document concerning an individual person (e.g. the prime minister appoints a director),
-            - a court judgment, administrative decision, or international agreement,
-            - not a legal document at all (e.g. a newspaper article, a recipe).
+            Najpierw oceń, czy tekst jest istotny. Tekst jest nieistotny, jeśli jest:
+            - dokumentem dotyczącym konkretnej osoby lub przypadku (np. premier powołuje dyrektora),
+            - orzeczeniem sądowym, decyzją administracyjną lub umową międzynarodową,
+            - nie jest w ogóle dokumentem prawnym (np. artykułem prasowym, przepisem kulinarnym).
 
-            Respond with:
-            1. Concise and straight to the point summary in Polish (200-300 words).
-            2. Logical flag indicating whether the text is irrelevant (true/false).
+            Podaj zwięzłe podsumowanie tekstu w języku polskim (200-300 słów).
 
+            Następnie podaj logiczną flagę wskazującą, czy tekst jest nieistotny (true, jeśli nieistotny, false, jeśli istotny).
             {format_instructions}
         </template>
     </prompt>
@@ -72,6 +67,27 @@
             1. Concise and straight to the point summary in Polish (200-300 words).
             2. Logical flag indicating whether the text is irrelevant (true/false).
             3. Sentence case title.
+
+            {format_instructions}
+        </template>
+    </prompt>
+    <prompt id="impact-assessment">
+        <template>
+            Jesteś wyspecjalizowanym modelem AI do analizy prawnej. Twoim zadaniem jest ocena, czy zmiana, jaka zaszła
+            w akcie prawnym może wpłynąć na postanowienia w dokumencie organizacyjnym.
+
+            Przez akt prawny rozumie się akty prawne o powszechnym obowiązywaniu, takie jak ustawy, rozporządzenia,
+            Dokument organizacyjny to tworzone na potrzeby naszej firmy regulaminy, procedury, wzory pism.
+            Jeżeli w dokumentach organizacyjnych znajduja się jakieś dane osobowe to są one wyłącznie przykładowe
+            i nie mają znaczenia dla analizy.
+
+            Fragment aktu przed zmianą: {changed_text}
+            Fragment aktu po zmianie: {changing_text}
+            Fragment dokumentu organizacyjnego: {doc_text}
+
+            Oceń, czy ta zmiana w akcie prawnym może wpłynąć na postanowienia we fragmencie dokumentu.
+            Podaj ocenę wpływu jako liczbę od 0 do 1, gdzie 1 oznacza pewny wpływ, a 0 brak wpływu.
+            Podaj również krótkie uzasadnienie.
 
             {format_instructions}
         </template>

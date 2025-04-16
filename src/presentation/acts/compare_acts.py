@@ -1,67 +1,95 @@
+from typing import List
+
+import pandas as pd
 import streamlit as st
+
+from src.core.dtos.act_dto import ActChangeAnalysisDTO
 from src.presentation.app_state import get_state
+
+change_type_map = {
+    "modified": "zmiana",
+    "appended": "dodanie",
+    "removed": "usunięcie"
+}
 
 
 def render_act_comparison():
     """
-    Renderuje interfejs porównywania aktów prawnych.
+    Renderuje interfejs do porównywania aktów prawnych.
+
+    Umożliwia wybór aktu bazowego i zmieniającego, a następnie ich porównanie.
+    Po wykonaniu porównania wyświetla wyniki w ramce danych i umożliwia analizę wpływu na dokumenty.
     """
     all_acts = get_state().acts_service.get_all()
-
     if not all_acts:
-        st.info("Brak dostępnych aktów prawnych do porównania.")
+        st.info("Brak dostępnych aktów prawnych, które można porównać.")
         return
 
-    base_act_options = {f"{act.title} ({act.publisher} {act.year} poz. {act.position})": act.id
-                        for act in all_acts}
-    base_act_selection = st.selectbox("Wybierz akt bazowy", options=list(base_act_options.keys()))
-    base_act_id = base_act_options[base_act_selection] if base_act_selection else None
+    col_base, col_changing = st.columns(2)
+    with col_base:
+        base_act_options = {
+            f"{act.title} ({act.publisher} {act.year} poz. {act.position})": act.id for act in all_acts
+        }
+        base_act_selection = st.selectbox("Akt zmieniany", options=["Wybierz..."] + list(base_act_options.keys()))
+        base_act_id = base_act_options.get(base_act_selection) if base_act_selection != "Wybierz..." else None
 
-    changing_options = {}
-    if base_act_id:
-        changing_acts = get_state().acts_service.get_related_changing_acts(base_act_id)
-        changing_options = {f"{act.title} ({act.publisher} {act.year} poz. {act.position})": act.id
-                            for act in changing_acts}
+        changing_options = {}
+        if base_act_id:
+            changing_acts = get_state().acts_service.get_related_changing_acts(base_act_id)
+            changing_options = {
+                f"{act.title} ({act.publisher} {act.year} poz. {act.position})": act.id for act in changing_acts
+            }
 
-    changing_act_selection = st.selectbox("Wybierz akt zmieniający",
-                                          options=["Wybierz..."] + list(changing_options.keys()))
-    changing_act_id = changing_options[changing_act_selection] if changing_act_selection != "Wybierz..." else None
+    with col_changing:
+        changing_act_selection = st.selectbox("Akt zmieniający", options=["Wybierz..."] + list(changing_options.keys()))
+        changing_act_id = (
+            changing_options.get(changing_act_selection) if changing_act_selection != "Wybierz..." else None
+        )
 
-    if st.button("Porównaj", disabled=not (base_act_id and changing_act_id)):
+    both_selected = base_act_id is not None and changing_act_id is not None
+    selected_pair = (base_act_id, changing_act_id)
+
+    if 'current_pair' not in st.session_state or st.session_state['current_pair'] != selected_pair:
+        st.session_state['differences'] = None
+        st.session_state['impact_analyses'] = None
+        st.session_state['current_pair'] = selected_pair
+
+    if st.button("Porównaj", disabled=not both_selected, type="primary", icon=":material/compare_arrows:"):
         with st.spinner("Analizowanie różnic..."):
-            try:
-                differences = get_state().act_comparisons_service.compare_acts(changing_act_id, base_act_id)
+            differences = get_state().act_comparisons_service.compare_acts(changing_act_id, base_act_id)
+            st.session_state['differences'] = differences
 
-                if not differences:
-                    st.info("Nie znaleziono różnic lub analiza nie została jeszcze wykonana.")
-                    return
+    if 'differences' in st.session_state and st.session_state['differences']:
+        st.subheader("Porównanie zmian")
+        render_differences(st.session_state['differences'])
 
-                st.subheader("Wyniki porównania")
+        st.info("Kliknij poniższy przycisk, aby przeanalizować wpływ tych zmian na dokumenty organizacyjne.")
+        if st.button("Analizuj wpływ na dokumenty"):
+            with st.spinner("Analizowanie wpływu..."):
+                impact_analyses = get_state().act_change_impact_service.analyze_impact(changing_act_id, base_act_id)
+                st.session_state['impact_analyses'] = impact_analyses
 
-                change_types = {"modified": "Zmodyfikowany", "appended": "Dodany", "removed": "Usunięty"}
-                for change_type in change_types:
-                    type_diffs = [d for d in differences if d.change_type == change_type]
-                    if type_diffs:
-                        st.markdown(f"### {change_types[change_type]} ({len(type_diffs)})")
-                        for diff in type_diffs:
-                            with st.expander(f"{change_types[change_type]} fragment"):
-                                if change_type == "removed":
-                                    st.markdown("**Usunięty tekst:**")
-                                    st.text(diff.changed_chunk_text)
-                                else:
-                                    st.markdown("**Tekst w akcie zmieniającym:**")
-                                    st.text(diff.changing_chunk_text or "Brak")
-                                    if diff.changed_chunk_text:
-                                        st.markdown("**Tekst w akcie zmienianym:**")
-                                        st.text(diff.changed_chunk_text)
-            except ValueError as e:
-                st.error(str(e))
-            except Exception as e:
-                st.error(f"Wystąpił błąd podczas porównywania: {str(e)}")
 
-st.header("Porównaj wersje aktów prawnych")
+def render_differences(differences: List[ActChangeAnalysisDTO]):
+    """
+    Wyświetla wyniki porównania w ramce danych.
+
+    :param differences: Lista obiektów ActChangeAnalysisDTO reprezentujących różnice
+    """
+    df = pd.DataFrame([
+        {
+            "Zmiana": change_type_map.get(diff.change_type, diff.change_type),
+            "Akt zmieniony": diff.changing_chunk_text or "",
+            "Akt zmieniający": diff.changed_chunk_text or ""
+        }
+        for diff in differences
+    ])
+    st.dataframe(df)
+
+
+st.header("Porównanie zmian w aktach prawnych")
 st.markdown("""
-Wybierz akt bazowy i akt zmieniający, aby zobaczyć różnice między nimi.
-System pokaże, które fragmenty zostały zmodyfikowane, dodane lub usunięte.
-""")
+    Wybierz dwie wersje danego aktu prawnego, aby porównać ich zmiany.
+    Możesz również przeanalizować wpływ tych zmian na zapisaną dokumentację.
+    """)
 render_act_comparison()

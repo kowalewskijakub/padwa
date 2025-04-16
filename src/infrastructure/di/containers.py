@@ -1,6 +1,7 @@
 # wersja: chet-theia
 from dependency_injector import containers, providers
 
+from src.core.services.act_change_impact_service import ActChangeImpactService
 from src.core.services.act_comparisons_service import ActComparisonsService
 from src.core.services.acts_service import ActsService
 from src.core.services.clusters_service import ClustersService
@@ -19,6 +20,7 @@ from src.infrastructure.repository.embeddable.act_chunk_cluster_repository impor
 from src.infrastructure.repository.embeddable.act_chunk_repository import ActChunkRepository
 from src.infrastructure.repository.embeddable.doc_chunk_repository import DocChunkRepository
 from src.infrastructure.repository.functional.act_change_analysis_repo import ActChangeAnalysisRepository
+from src.infrastructure.repository.functional.act_change_impact_analysis_repo import ActChangeImpactAnalysisRepository
 from src.infrastructure.repository.functional.act_change_link_repo import ActChangeLinkRepository
 from src.presentation.app_config import AppConfig
 
@@ -84,6 +86,11 @@ class Container(containers.DeclarativeContainer):
         db_manager=db_manager
     )
 
+    act_change_impact_analysis_repository = providers.Singleton(
+        ActChangeImpactAnalysisRepository,
+        db_manager=db_manager
+    )
+
     # Domena - embeddingi
     embedding_handler = providers.Singleton(
         EmbeddingHandler,
@@ -128,7 +135,7 @@ class Container(containers.DeclarativeContainer):
         act_change_link_repo=act_change_link_repository,
         embedding_handler=embedding_handler,
         embedding_semantic_clusterer=embedding_semantic_clusterer,
-        cluster_orchestrator=clusters_service
+        clusters_service=clusters_service
     )
 
     docs_service = providers.Singleton(
@@ -158,4 +165,14 @@ class Container(containers.DeclarativeContainer):
         act_chunk_repo=act_chunk_repository,
         act_change_link_repo=act_change_link_repository,
         act_change_analysis_repo=act_change_analysis_repository,
+    )
+
+    act_change_impact_service = providers.Singleton(
+        ActChangeImpactService,
+        act_change_analysis_repo=act_change_analysis_repository,
+        act_chunk_repo=act_chunk_repository,
+        doc_chunk_repo=doc_chunk_repository,
+        act_change_impact_analysis_repo=act_change_impact_analysis_repository,
+        embedding_handler=embedding_handler,
+        llm_handler=llm_handler,
     )

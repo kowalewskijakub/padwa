@@ -17,6 +17,9 @@ def clean_stamps(text: str):
         {'pattern': r'Prezydent Rzeczypospolitej Polskiej:.*', 'replacement': ''},
         {'pattern': r'Dziennik Ustaw.*Poz\. \d{1,4}', 'replacement': ''},
         {'pattern': r'^\n', 'replacement': ''},
+        {'pattern': r'Rozdział (\d|\w)+\n.+', 'replacement': ''},
+        {'pattern': r'DZIAŁ (\d|\w)+\n.+', 'replacement': ''},
+        {'pattern': r'TYTUŁ (\d|\w)+\n.+', 'replacement': ''},
     ]
 
     for pattern_dict in patterns:

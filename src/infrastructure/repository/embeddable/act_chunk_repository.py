@@ -1,4 +1,3 @@
-# wersja: chet-theia
 from typing import List
 
 from src.core.models.act import ActChunk as ActChunkDomain

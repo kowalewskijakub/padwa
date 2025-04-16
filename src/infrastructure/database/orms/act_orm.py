@@ -45,7 +45,17 @@ class ActChangeAnalysis(SQLModel, table=True):
     changed_act_id: int = Field(foreign_key="act.id")
     changing_chunk_id: Optional[int] = Field(default=None, foreign_key="actchunk.id")
     changed_chunk_id: Optional[int] = Field(default=None, foreign_key="actchunk.id")
-    change_type: str # 'modified', 'appended', 'removed'
+    change_type: str  # 'modified', 'appended', 'removed'
+    relevancy: float
+    justification: str
+
+
+class ActChangeImpactAnalysis(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    changing_act_id: int = Field(foreign_key="act.id")
+    changed_act_id: int = Field(foreign_key="act.id")
+    change_analysis_id: int = Field(foreign_key="actchangeanalysis.id")
+    doc_chunk_id: int = Field(foreign_key="docchunk.id")
     relevancy: float
     justification: str
 
