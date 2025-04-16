@@ -15,10 +15,11 @@ class ImpactAssessmentResponse(LLMResponse):
     Klasa odpowiedzi LLM dla oceny wpływu zmiany.
     """
     relevancy: float = Field(
-        description="Ocena wpływu zmiany w akcie prawnym na fragment dokumentu."
+        description="Ocenę wpływu zmiany na dokument organizacyjny w skali od 0 do 1, "
+                    "gdzie 1 oznacza pewny wpływ, a 0 brak wpływu"
     )
     justification: str = Field(
-        description="Uzasadnienie oceny wpływu zmiany w akcie prawnym na fragment dokumentu."
+        description="Uzasadnienie Twojej oceny wpływu zmiany w akcie prawnym na fragment dokumentu."
     )
 
 
@@ -30,13 +31,13 @@ class ActSummaryResponse(LLMSummaryResponse):
     powinien być pominięty w kontekście przyjętej domeny.
     """
     summary: str = Field(
-        description="Podsumowanie dostarczonego aktu prawnego, ok. 300 znaków."
+        description="Zwięzłe i konkretne podsumowanie tekstu w języku polskim (200-300 słów)"
     )
     flag: bool = Field(
         description=
         """
-        True  – jeżeli dostarczony tekst nie jest aktem prawnym lub jest nieistotny w przyjętej domenie.
-        False – w przeciwnym wypadku.
+        False – jeżeli dostarczony tekst jest istotny
+        True  – w przeciwnym wypadku
         """
     )
 
@@ -49,16 +50,16 @@ class DocSummaryResponse(LLMSummaryResponse):
     powinien być pominięty w kontekście przyjętej domeny.
     """
     title: str = Field(
-        description="Tytuł dostarczonego dokumentu."
+        description="Tytuł dostarczonego tekstu"
     )
     summary: str = Field(
-        description="Podsumowanie dostarczonego dokumentu, ok. 300 znaków."
+        description="Zwięzłe i konkretne podsumowanie tekstu w języku polskim (200-300 słów)"
     )
     flag: bool = Field(
         description=
         """
-        True  – jeżeli dostarczony tekst nie jest dokumentem lub jest nieistotny w przyjętej domenie.
-        False – w przeciwnym wypadku.
+        False – jeżeli dostarczony tekst jest istotny
+        True  – w przeciwnym wypadku
         """
     )
 
@@ -71,14 +72,13 @@ class ClusterSummaryResponse(LLMSummaryResponse):
     powinien być pominięty w kontekście przyjętej domeny.
     """
     summary: str = Field(
-        description="Podsumowanie dostarczonych przepisów, ok. 300 znaków."
+        description="Zwięzłe i konkretne podsumowanie tekstu w języku polskim (200-300 słów)"
     )
     flag: bool = Field(
         description=
         """
-        True  – jeżeli dostarczony tekst zawiera elementy, które nie są przepisami prawnymi lub są 
-                nieistotne w przyjętej domenie.
-        False – w przeciwnym wypadku.
+        False – jeżeli dostarczony tekst jest istotny
+        True  – w przeciwnym wypadku
         """
     )
 

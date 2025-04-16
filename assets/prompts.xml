@@ -15,10 +15,6 @@
             - orzeczeniem sądowym, decyzją administracyjną,
             - nie jest w ogóle dokumentem prawnym (np. artykułem prasowym, przepisem kulinarnym).
 
-            W swojej odpowiedzi podaj:
-            1. zwięzłe i konkretne podsumowanie tekstu w języku polskim (200-300 słów),
-            2. flagę logiczną wskazującą, czy tekst jest istotny (true/false).
-
             {format_instructions}
         </template>
     </prompt>
@@ -36,10 +32,6 @@
             - konkretną osobę lub zdarzenie (np. premier powołuje dyrektora),
             - orzeczenia sądowe, decyzje administracyjne,
             - cokolwiek innego (np. jest przepisem kulinarnym).
-
-            W swojej odpowiedzi podaj:
-            1. zwięzłe i konkretne podsumowanie tekstu w języku polskim (200-300 słów),
-            2. flagę logiczną wskazującą, czy tekst jest istotny (true/false).
 
             {format_instructions}
         </template>
@@ -59,10 +51,6 @@
 
             Użyte w dokumencie dane osobowe są przykładowe i nie mają znaczenia dla analizy.
 
-            W swojej odpowiedzi podaj:
-            1. zwięzłe i konkretne podsumowanie tekstu w języku polskim (200-300 słów),
-            2. flagę logiczną wskazującą, czy tekst jest istotny (true/false).
-
             {format_instructions}
         </template>
     </prompt>
@@ -77,11 +65,6 @@
             Fragment aktu prawnego przed zmianą: {changed_text}
             Fragment aktu prawnego po zmianie: {changing_text}
             Fragment dokumentu organizacyjnego: {doc_text}
-
-            W swojej odpowiedzi podaj:
-            1. ocenę wpływu zmiany na dokument organizacyjny w skali od 0 do 1, gdzie 1 oznacza pewny wpływ, a 0
-            brak wpływu,
-            2. krótkie uzasadnienie, dlaczego tak uważasz.
 
             {format_instructions}
         </template>
