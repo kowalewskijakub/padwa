@@ -5,7 +5,7 @@
   "app_acronym": "Padwa",
   "app_version": "1.0.0",
   "eli_api_base_url": "https://api.sejm.gov.pl/eli",
-  "llm_model": "gpt-4o-mini",
+  "llm_model": "o4-mini-2025-04-16",
   "embedding_model": "text-embedding-3-small",
   "embedding_vector_size": 1536
 }
