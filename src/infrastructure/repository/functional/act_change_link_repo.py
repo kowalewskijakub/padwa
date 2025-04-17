@@ -1,4 +1,6 @@
 # wersja: chet-theia
+from sqlmodel import or_
+
 from src.core.models.act import ActChangeLink as ActChangeLinkDomain
 from src.infrastructure.database.database_manager import DatabaseManager
 from src.infrastructure.database.orms.act_orm import ActChangeLink as ActChangeLinkORM
@@ -17,6 +19,21 @@ class ActChangeLinkRepository(BaseRepository[ActChangeLinkORM, ActChangeLinkDoma
         :param db_manager: Menedżer bazy danych
         """
         super().__init__(db_manager, ActChangeLinkORM, ActChangeLinkDomain)
+
+    def get_referenced_acts(self, act_id: int) -> list[int]:
+        """
+        Pobiera ID aktów prawnych, które są powiązane z danym aktem.
+
+        :param act_id: ID aktu
+        :return: Lista ID powiązanych aktów
+        """
+        with self.db.session_scope() as session:
+            base_act = session.query(ActChangeLinkORM).filter(ActChangeLinkORM.changed_act_id == act_id).first()
+            if base_act:
+                return self.get_changing_acts(base_act.changed_act_id)
+            else:
+                base_act = session.query(ActChangeLinkORM).filter(ActChangeLinkORM.changing_act_id == act_id).first()
+                return self.get_changing_acts(base_act.changed_act_id)
 
     def get_changing_acts(self, changed_act_id: int) -> list[int]:
         """

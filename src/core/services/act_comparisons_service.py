@@ -38,10 +38,6 @@ class ActComparisonsService:
         :param changed_act_id: ID aktu zmienianego
         :return: Lista wyników analizy zmian
         """
-        related_acts = self.act_change_link_repo.get_changed_acts(changing_act_id)
-        if changed_act_id not in related_acts:
-            raise ValueError("Te akty nie są powiązane")
-
         existing_analysis = self.act_change_analysis_repo.get_by_act_pair(changing_act_id, changed_act_id)
         if existing_analysis:
             return self._enrich_analysis_with_text(existing_analysis)
@@ -141,3 +137,4 @@ class ActComparisonsService:
             )
             for a in analysis
         ]
+

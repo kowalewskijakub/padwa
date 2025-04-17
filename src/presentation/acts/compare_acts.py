@@ -35,7 +35,7 @@ def render_act_comparison():
 
         changing_options = {}
         if base_act_id:
-            changing_acts = get_state().acts_service.get_related_changing_acts(base_act_id)
+            changing_acts = get_state().acts_service.get_referenced_acts(base_act_id)
             changing_options = {
                 f"{act.title} ({act.publisher} {act.year} poz. {act.position})": act.id for act in changing_acts
             }

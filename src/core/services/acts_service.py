@@ -320,7 +320,17 @@ class ActsService:
 
         self.act_change_link_repo.bulk_create(change_links)
 
-    def get_related_changing_acts(self, changed_act_id: int) -> List[ActProcessedDTO]:
+    def get_referenced_acts(self, act_id: int) -> list[ActProcessedDTO]:
+        """
+        Pobiera listę aktów powiązanych dla danego aktu.
+
+        :param act_id: ID aktu
+        """
+        related_ids = self.act_change_link_repo.get_referenced_acts(act_id)
+        acts = self.act_repo.bulk_get_by_ids(related_ids)
+        return [ActProcessedDTO.model_validate(act) for act in acts if act]
+
+    def get_related_changing_acts(self, changed_act_id: int) -> list[ActProcessedDTO]:
         """
         Pobiera listę aktów zmieniających dla danego aktu.
 
