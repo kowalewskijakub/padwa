@@ -27,14 +27,14 @@ def render_assess_impact_acts():
         base_act_options = {
             f"{act.title} ({act.publisher} {act.year} poz. {act.position})": act.id for act in all_acts
         }
-        base_act_selection = st.selectbox("Akt zmieniany", options=["Wybierz..."] + list(base_act_options.keys()))
+        base_act_selection = st.selectbox("Wersja wcześniejsza", options=["Wybierz..."] + list(base_act_options.keys()))
         base_act_id = base_act_options.get(base_act_selection) if base_act_selection != "Wybierz..." else None
 
     with col_changing:
         changing_act_options = {
             f"{act.title} ({act.publisher} {act.year} poz. {act.position})": act.id for act in all_acts
         }
-        changing_act_selection = st.selectbox("Akt zmieniający",
+        changing_act_selection = st.selectbox("Wersja późniejsza",
                                               options=["Wybierz..."] + list(changing_act_options.keys()))
         changing_act_id = changing_act_options.get(
             changing_act_selection) if changing_act_selection != "Wybierz..." else None

@@ -60,10 +60,17 @@
             Twoim zadaniem jest ocena, czy zmiana, jaka zaszła w akcie prawnym może wymagać przejrzenia przez
             prawnika podanego dokumentu organizacyjnego.
 
+            Przez zmianę należy rozumieć następujące rodzaje:
+            1. zmiana w treści ("modified") – wtedy dostarczone są dla Ciebie fragmenty aktu prawnego
+               w wersji wcześniejszej i późniejszej, które się zmieniły,
+            2. dodanie nowej normy ("added") – wtedy dostarczone są dla Ciebie tylko fragmenty w wersji późniejszej,
+            3. usunięcie normy ("removed") – wtedy dostarczone są dla Ciebie tylko fragmenty w wersji wcześniejszej.
+
             Dokument organizacyjny to tworzone na potrzeby naszej firmy regulaminy, procedury lub wzory pism.
 
-            Fragment aktu prawnego przed zmianą: {changed_text}
-            Fragment aktu prawnego po zmianie: {changing_text}
+            Rodzaj zmiany: {change_type}
+            Fragment aktu prawnego w wersji wcześniejszej: {changed_text}
+            Fragment aktu prawnego w wersji późniejszej: {changing_text}
             Fragment dokumentu organizacyjnego: {doc_text}
 
             {format_instructions}

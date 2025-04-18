@@ -2,7 +2,7 @@ from typing import Type, Dict, Any, Tuple, Optional, TypeVar
 
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 from src.common.batch_processor import BatchProcessor
 from src.infrastructure.processing.llm.llm_prompts_retriever import get_llm_prompt_retriever
@@ -35,7 +35,7 @@ class LLMHandler:
         :param model_name: Nazwa modelu LLM OpenAI, który ma być wykorzystywany przez model
         """
         self.model_name = model_name
-        self.llm = ChatOpenAI(model=model_name)
+        self.llm = ChatGoogleGenerativeAI(model=model_name)
         self.chains = {}
 
     def _create_chain(self, model_class: Type[LLMResponse]) -> Any:

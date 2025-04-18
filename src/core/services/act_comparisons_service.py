@@ -1,16 +1,13 @@
-from typing import List
-
-import numpy as np
-
+from typing import List, Optional
+import regex
+from src.common.logging_configurator import get_logger
 from src.core.dtos.act_dto import ActChangeAnalysisDTO
 from src.core.models.act import ActChunk, ActChangeAnalysis
 from src.infrastructure.repository.embeddable.act_chunk_repository import ActChunkRepository
 from src.infrastructure.repository.functional.act_change_analysis_repo import ActChangeAnalysisRepository
 from src.infrastructure.repository.functional.act_change_link_repo import ActChangeLinkRepository
 
-MIN_SIMILARITY_THRESHOLD = 0.95
-MAX_SIMILARITY_THRESHOLD = 0.85
-
+_logger = get_logger()
 
 class ActComparisonsService:
     def __init__(
@@ -30,13 +27,24 @@ class ActComparisonsService:
         self.act_change_link_repo = act_change_link_repo
         self.act_change_analysis_repo = act_change_analysis_repo
 
+    @staticmethod
+    def extract_article_number(text: str) -> Optional[str]:
+        """
+        Wyodrębnia numer artykułu z tekstu chunka za pomocą wzorca regex.
+
+        :param text: Tekst chunka
+        :return: Numer artykułu (np. "Art. 1.") lub None, jeśli nie znaleziono
+        """
+        match = regex.match(r"Art\. \d{1,}(\w{0,4})(\p{No}{0,2})\.", text)
+        return match.group(0) if match else None
+
     def compare_acts(self, changing_act_id: int, changed_act_id: int) -> List[ActChangeAnalysisDTO]:
         """
-        Porównuje dwa akty prawne i zwraca różnice między nimi.
+        Porównuje dwa akty prawne na podstawie numerów artykułów i zwraca różnice.
 
         :param changing_act_id: ID aktu zmieniającego
         :param changed_act_id: ID aktu zmienianego
-        :return: Lista wyników analizy zmian
+        :return: Lista wyników analizy zmian w formacie DTO
         """
         existing_analysis = self.act_change_analysis_repo.get_by_act_pair(changing_act_id, changed_act_id)
         if existing_analysis:
@@ -53,59 +61,74 @@ class ActComparisonsService:
     def _analyze_changes(self, changing_act_id: int, changed_act_id: int, changing_chunks: List[ActChunk],
                          changed_chunks: List[ActChunk]) -> List[ActChangeAnalysis]:
         """
-        Analizuje zmiany między fragmentami dwóch aktów prawnych.
+        Analizuje zmiany między fragmentami dwóch aktów prawnych na podstawie numerów artykułów.
 
         :param changing_act_id: ID aktu zmieniającego
         :param changed_act_id: ID aktu zmienianego
         :param changing_chunks: Lista fragmentów aktu zmieniającego
         :param changed_chunks: Lista fragmentów aktu zmienianego
-        :return: Lista wyników analizy
+        :return: Lista wyników analizy zmian
         """
         results = []
 
-        changing_embeddings = np.array([c.embedding for c in changing_chunks if c.embedding is not None])
-        changed_embeddings = np.array([c.embedding for c in changed_chunks if c.embedding is not None])
-
-        matched_changed = set()
-        for i, changing_chunk in enumerate(changing_chunks):
-            similarities = np.dot(changing_embeddings[i], changed_embeddings.T) / (
-                    np.linalg.norm(changing_embeddings[i]) * np.linalg.norm(changed_embeddings, axis=1)
-            )
-            max_similarity_idx = np.argmax(similarities)
-            max_similarity = similarities[max_similarity_idx]
-
-            if max_similarity >= MIN_SIMILARITY_THRESHOLD:
-                continue
-            elif max_similarity >= MAX_SIMILARITY_THRESHOLD:
-                changed_chunk = changed_chunks[max_similarity_idx]
-                matched_changed.add(max_similarity_idx)
-
-                if changing_chunk.text != changed_chunk.text:
-                    results.append(ActChangeAnalysis(
-                        changing_act_id=changing_act_id,
-                        changed_act_id=changed_act_id,
-                        changing_chunk_id=changing_chunk.id,
-                        changed_chunk_id=changed_chunk.id,
-                        change_type="modified"
-                    ))
+        # Tworzy mapy numerów artykułów na chunki
+        changing_map = {}
+        for chunk in changing_chunks:
+            art_num = self.extract_article_number(chunk.text)
+            if art_num:
+                changing_map[art_num] = chunk
             else:
+                _logger.warning(f"Chunk bez numeru artykułu w akcie zmieniającym {changing_act_id}: {chunk.id}")
+
+        changed_map = {}
+        for chunk in changed_chunks:
+            art_num = self.extract_article_number(chunk.text)
+            if art_num:
+                changed_map[art_num] = chunk
+            else:
+                _logger.warning(f"Chunk bez numeru artykułu w akcie zmienianym {changed_act_id}: {chunk.id}")
+
+        # Pobiera zbiory numerów artykułów
+        changing_arts = set(changing_map.keys())
+        changed_arts = set(changed_map.keys())
+
+        # Znajduje wspólne artykuły i sprawdza modyfikacje
+        common_arts = changing_arts.intersection(changed_arts)
+        for art in common_arts:
+            changing_chunk = changing_map[art]
+            changed_chunk = changed_map[art]
+            if changing_chunk.text != changed_chunk.text:
                 results.append(ActChangeAnalysis(
                     changing_act_id=changing_act_id,
                     changed_act_id=changed_act_id,
                     changing_chunk_id=changing_chunk.id,
-                    changed_chunk_id=None,
-                    change_type="appended"
+                    changed_chunk_id=changed_chunk.id,
+                    change_type="modified"
                 ))
 
-        for i, changed_chunk in enumerate(changed_chunks):
-            if i not in matched_changed:
-                results.append(ActChangeAnalysis(
-                    changing_act_id=changing_act_id,
-                    changed_act_id=changed_act_id,
-                    changing_chunk_id=None,
-                    changed_chunk_id=changed_chunk.id,
-                    change_type="removed"
-                ))
+        # Znajduje dodane artykuły (tylko w akcie zmieniającym)
+        appended_arts = changing_arts - changed_arts
+        for art in appended_arts:
+            changing_chunk = changing_map[art]
+            results.append(ActChangeAnalysis(
+                changing_act_id=changing_act_id,
+                changed_act_id=changed_act_id,
+                changing_chunk_id=changing_chunk.id,
+                changed_chunk_id=None,
+                change_type="appended"
+            ))
+
+        # Znajduje usunięte artykuły (tylko w akcie zmienianym)
+        removed_arts = changed_arts - changing_arts
+        for art in removed_arts:
+            changed_chunk = changed_map[art]
+            results.append(ActChangeAnalysis(
+                changing_act_id=changing_act_id,
+                changed_act_id=changed_act_id,
+                changing_chunk_id=None,
+                changed_chunk_id=changed_chunk.id,
+                change_type="removed"
+            ))
 
         return results
 
@@ -114,9 +137,9 @@ class ActComparisonsService:
         Wzbogaca wyniki analizy o tekst fragmentów.
 
         :param analysis: Lista analiz zmian
-        :return: Lista DTO z dodanym tekstem
+        :return: Lista DTO z dodanym tekstem fragmentów
         """
-        all_chunk_ids = set(a.changing_chunk_id for a in analysis) | \
+        all_chunk_ids = set(a.changing_chunk_id for a in analysis if a.changing_chunk_id) | \
                         set(a.changed_chunk_id for a in analysis if a.changed_chunk_id)
 
         chunks = self.act_chunk_repo.bulk_get_by_ids(list(all_chunk_ids))
@@ -137,4 +160,3 @@ class ActComparisonsService:
             )
             for a in analysis
         ]
-

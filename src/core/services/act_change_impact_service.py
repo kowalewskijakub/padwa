@@ -1,5 +1,6 @@
 from typing import List
 
+from src.common.batch_processor import BatchProcessor
 from src.core.dtos.act_dto import ActChangeAnalysisDTO, ActChangeImpactAnalysisDTO
 from src.core.models.act import ActChangeImpactAnalysis, ActChangeAnalysis
 from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
@@ -44,7 +45,8 @@ class ActChangeImpactService:
 
     def analyze_impact(self, changing_act_id: int, changed_act_id: int) -> List[ActChangeAnalysisDTO]:
         """
-        Analizuje wpływ zmian w akcie prawnym na fragmenty dokumentów, zwracając istniejące wyniki, jeśli są dostępne.
+        Analizuje wpływ zmian w akcie prawnym na fragmenty dokumentów, zwracając istniejące wyniki, jeśli są dostępne,
+        w przeciwnym razie obliczając je przy użyciu przetwarzania wsadowego.
 
         :param changing_act_id: ID aktu zmieniającego
         :param changed_act_id: ID aktu zmienianego
@@ -54,39 +56,49 @@ class ActChangeImpactService:
         if not analyses:
             return []
 
-        # Sprawdza, czy istnieją zapisane analizy
+        # Sprawdza, czy istnieją zapisane analizy wpływu
         existing_impacts = self.act_change_impact_analysis_repo.get_by_act_pair(changing_act_id, changed_act_id)
         if existing_impacts:
             return self._enrich_analysis_with_impacts(analyses, existing_impacts)
 
-        # Jeśli analizy wpływu nie istnieją, wykonuje nową analizę
-        impact_analyses = []
+        # Zbiera elementy do przetwarzania wsadowego
+        items_with_ids = []
         for analysis in analyses:
             if analysis.change_type in ["modified", "appended", "removed"]:
                 chunk_id = analysis.changing_chunk_id or analysis.changed_chunk_id
                 chunk = self.act_chunk_repo.get_by_id(chunk_id)
-
                 similar_doc_chunks = self.doc_chunk_repo.get_top_n_similar(chunk.embedding, n=5)
-
                 for doc_chunk in similar_doc_chunks:
-                    response = self.llm_handler.invoke(
-                        ImpactAssessmentResponse,
-                        {
-                            "changed_text": analysis.changed_chunk_text,
-                            "changing_text": analysis.changing_chunk_text,
-                            "doc_text": doc_chunk.text,
-                        }
-                    )
-                    impact_analysis = ActChangeImpactAnalysis(
-                        changing_act_id=changing_act_id,
-                        changed_act_id=changed_act_id,
-                        change_analysis_id=analysis.id,
-                        doc_chunk_id=doc_chunk.id,
-                        relevancy=response.relevancy,
-                        justification=response.justification
-                    )
-                    impact_analyses.append(impact_analysis)
+                    input_dict = {
+                        "change_type": analysis.change_type,
+                        "changed_text": analysis.changed_chunk_text,
+                        "changing_text": analysis.changing_chunk_text,
+                        "doc_text": doc_chunk.text,
+                    }
+                    identifier = (analysis.id, doc_chunk.id)
+                    items_with_ids.append((identifier, input_dict))
 
+        # Definiuje funkcję przetwarzania dla wywołania LLM
+        process_func = lambda input_dict: self.llm_handler.invoke(ImpactAssessmentResponse, input_dict)
+
+        # Przetwarza elementy w partii przy użyciu BatchProcessor
+        with BatchProcessor(process_func=process_func) as processor:
+            results = processor.process_batch(items_with_ids)
+
+        # Tworzy analizy wpływu z wyników wsadowych
+        impact_analyses = []
+        for identifier, response in results.items():
+            analysis_id, doc_chunk_id = identifier
+            impact_analyses.append(ActChangeImpactAnalysis(
+                changing_act_id=changing_act_id,
+                changed_act_id=changed_act_id,
+                change_analysis_id=analysis_id,
+                doc_chunk_id=doc_chunk_id,
+                relevancy=response.relevancy,
+                justification=response.justification
+            ))
+
+        # Zapisuje analizy wpływu
         if impact_analyses:
             self.act_change_impact_analysis_repo.bulk_create(impact_analyses)
 

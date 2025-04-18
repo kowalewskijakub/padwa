@@ -30,7 +30,7 @@ def render_act_comparison():
         base_act_options = {
             f"{act.title} ({act.publisher} {act.year} poz. {act.position})": act.id for act in all_acts
         }
-        base_act_selection = st.selectbox("Akt zmieniany", options=["Wybierz..."] + list(base_act_options.keys()))
+        base_act_selection = st.selectbox("Wersja wcześniejsza", options=["Wybierz..."] + list(base_act_options.keys()))
         base_act_id = base_act_options.get(base_act_selection) if base_act_selection != "Wybierz..." else None
 
         changing_options = {}
@@ -41,7 +41,7 @@ def render_act_comparison():
             }
 
     with col_changing:
-        changing_act_selection = st.selectbox("Akt zmieniający", options=["Wybierz..."] + list(changing_options.keys()))
+        changing_act_selection = st.selectbox("Wersja późniejsza", options=["Wybierz..."] + list(changing_options.keys()))
         changing_act_id = (
             changing_options.get(changing_act_selection) if changing_act_selection != "Wybierz..." else None
         )
@@ -78,9 +78,9 @@ def render_differences(differences: List[ActChangeAnalysisDTO]):
     """
     df = pd.DataFrame([
         {
-            "Zmiana": change_type_map.get(diff.change_type, diff.change_type),
-            "Akt zmieniony": diff.changing_chunk_text or "",
-            "Akt zmieniający": diff.changed_chunk_text or ""
+            "Rodzaj zmiany": change_type_map.get(diff.change_type, diff.change_type),
+            "Wersja wcześniejsza": diff.changed_chunk_text or "",
+            "Wersja późniejsza": diff.changing_chunk_text or "",
         }
         for diff in differences
     ])
