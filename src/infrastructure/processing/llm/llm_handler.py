@@ -35,7 +35,10 @@ class LLMHandler:
         :param model_name: Nazwa modelu LLM OpenAI, który ma być wykorzystywany przez model
         """
         self.model_name = model_name
-        self.llm = ChatGoogleGenerativeAI(model=model_name)
+        self.llm = ChatGoogleGenerativeAI(
+            model=model_name,
+            max_output_tokens=500
+        )
         self.chains = {}
 
     def _create_chain(self, model_class: Type[LLMResponse]) -> Any:

@@ -1,6 +1,8 @@
-import regex
 from typing import List, Optional
+
+import regex
 from scipy.spatial import distance
+
 from src.common.logging_configurator import get_logger
 from src.core.dtos.act_dto import ActChangeAnalysisDTO
 from src.core.models.act import ActChunk, ActChangeAnalysis
@@ -9,6 +11,7 @@ from src.infrastructure.repository.functional.act_change_analysis_repo import Ac
 from src.infrastructure.repository.functional.act_change_link_repo import ActChangeLinkRepository
 
 _logger = get_logger()
+
 
 class ActComparisonsService:
     def __init__(
@@ -39,7 +42,8 @@ class ActComparisonsService:
         match = regex.match(r"Art\. \d{1,}(\w{0,4})(\p{No}{0,2})\.", text)
         return match.group(0) if match else None
 
-    def compare_acts(self, changing_act_id: int, changed_act_id: int, similarity_threshold: float = 0.95) -> List[ActChangeAnalysisDTO]:
+    def compare_acts(self, changing_act_id: int, changed_act_id: int, similarity_threshold: float = 0.95) -> List[
+        ActChangeAnalysisDTO]:
         """
         Porównuje dwa akty prawne na podstawie numerów artykułów i zwraca różnice.
 
@@ -55,7 +59,8 @@ class ActComparisonsService:
         changing_chunks = self.act_chunk_repo.get_for_act(changing_act_id)
         changed_chunks = self.act_chunk_repo.get_for_act(changed_act_id)
 
-        analysis_results = self._analyze_changes(changing_act_id, changed_act_id, changing_chunks, changed_chunks, similarity_threshold)
+        analysis_results = self._analyze_changes(changing_act_id, changed_act_id, changing_chunks, changed_chunks,
+                                                 similarity_threshold)
         saved_analysis = self.act_change_analysis_repo.bulk_create(analysis_results)
 
         return self._enrich_analysis_with_text(saved_analysis)

@@ -1,5 +1,4 @@
 # wersja: chet-theia
-from sqlmodel import or_
 
 from src.core.models.act import ActChangeLink as ActChangeLinkDomain
 from src.infrastructure.database.database_manager import DatabaseManager

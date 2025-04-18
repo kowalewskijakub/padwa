@@ -4,7 +4,7 @@ from typing import List, Tuple, Any, Dict, Callable
 
 
 class BatchProcessor:
-    def __init__(self, process_func: Callable, max_workers: int = 10):
+    def __init__(self, process_func: Callable, max_workers: int = 40):
         """
         :param process_func: Funkcja do przetwarzania pojedynczych elementów
         :param max_workers: Maksymalna liczba wątków roboczych

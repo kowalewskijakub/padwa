@@ -5,7 +5,7 @@ from src.common.logging_configurator import get_logger
 from src.core.dtos.act_dto import ActProcessedDTO
 from src.core.models.base import EmbeddableBase, ChunkClusterBase, Base
 from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
-from src.infrastructure.processing.llm.llm_iterative_summarizer import LLMIterativeSummarizer
+from src.infrastructure.processing.llm.llm_recursive_summarizer import LLMRecursiveSummarizer
 from src.infrastructure.processing.llm.llm_response_models import LLMSummaryResponse, ActClusterSummaryResponse
 from src.infrastructure.repository.base_repository import BaseRepository
 from src.infrastructure.repository.core.act_repository import ActRepository
@@ -30,7 +30,7 @@ class ClustersService:
             act_chunk_repo: ActChunkRepository,
             act_chunk_cluster_repo: ActChunkClusterRepository,
             embedding_handler: EmbeddingHandler,
-            llm_iterative_summarizer: LLMIterativeSummarizer
+            llm_recursive_summarizer: LLMRecursiveSummarizer
     ):
         """
         Inicjalizuje orchestrator klastrów.
@@ -39,13 +39,13 @@ class ClustersService:
         :param act_chunk_repo: Repozytorium fragmentów aktów
         :param act_chunk_cluster_repo: Repozytorium klastrów fragmentów
         :param embedding_handler: Handler do zarządzania embeddingami
-        :param llm_iterative_summarizer: Obiekt do rekurencyjnego podsumowywania
+        :param llm_recursive_summarizer: Obiekt do rekurencyjnego podsumowywania
         """
         self.act_repo = act_repo
         self.act_chunk_repo = act_chunk_repo
         self.act_chunk_cluster_repo = act_chunk_cluster_repo
         self.embedding_handler = embedding_handler
-        self.llm_iterative_summarizer = llm_iterative_summarizer
+        self.llm_recursive_summarizer = llm_recursive_summarizer
 
     def generate_act_summary(self, act_id: int) -> Optional[ActProcessedDTO]:
         """
@@ -130,7 +130,7 @@ class ClustersService:
         :return: Końcowe podsumowanie
         """
         chunks = chunk_repository.get_for_parent(reference_id)
-        summarizer_gen = self.llm_iterative_summarizer.summarize(
+        summarizer_gen = self.llm_recursive_summarizer.summarize(
             chunks,
             reference_id,
             cluster_summary_response,

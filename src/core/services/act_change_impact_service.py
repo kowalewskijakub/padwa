@@ -66,7 +66,7 @@ class ActChangeImpactService:
             if analysis.change_type in ["modified", "appended", "removed"]:
                 chunk_id = analysis.changing_chunk_id or analysis.changed_chunk_id
                 chunk = self.act_chunk_repo.get_by_id(chunk_id)
-                similar_doc_chunks = self.doc_chunk_repo.get_top_n_similar(chunk.embedding, n=5)
+                similar_doc_chunks = self.doc_chunk_repo.get_top_n_similar(chunk.embedding, n=1)
                 for doc_chunk in similar_doc_chunks:
                     input_dict = {
                         "change_type": analysis.change_type,

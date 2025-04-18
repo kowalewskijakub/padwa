@@ -12,7 +12,7 @@ TChunkClusterBase = TypeVar("TChunkClusterBase", bound=ChunkClusterBase)
 TChunkBase = TypeVar("TChunkBase", bound=ChunkBase)
 
 
-class LLMIterativeSummarizer:
+class LLMRecursiveSummarizer:
     """
     Klasa do iteratywnego generowania podsumowań dla aktów prawnych.
 

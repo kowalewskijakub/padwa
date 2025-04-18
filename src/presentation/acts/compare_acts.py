@@ -41,7 +41,8 @@ def render_act_comparison():
             }
 
     with col_changing:
-        changing_act_selection = st.selectbox("Wersja późniejsza", options=["Wybierz..."] + list(changing_options.keys()))
+        changing_act_selection = st.selectbox("Wersja późniejsza",
+                                              options=["Wybierz..."] + list(changing_options.keys()))
         changing_act_id = (
             changing_options.get(changing_act_selection) if changing_act_selection != "Wybierz..." else None
         )

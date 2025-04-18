@@ -13,7 +13,7 @@ from src.infrastructure.database.database_manager import DatabaseManager
 from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
 from src.infrastructure.processing.embedding.embedding_semantic_clusterer import EmbeddingSemanticClusterer
 from src.infrastructure.processing.llm.llm_handler import LLMHandler
-from src.infrastructure.processing.llm.llm_iterative_summarizer import LLMIterativeSummarizer
+from src.infrastructure.processing.llm.llm_recursive_summarizer import LLMRecursiveSummarizer
 from src.infrastructure.repository.core.act_repository import ActRepository
 from src.infrastructure.repository.core.doc_repository import DocRepository
 from src.infrastructure.repository.embeddable.act_chunk_cluster_repository import ActChunkClusterRepository
@@ -111,8 +111,8 @@ class Container(containers.DeclarativeContainer):
         model_name=config.provided.llm_model
     )
 
-    llm_iterative_summarizer = providers.Singleton(
-        LLMIterativeSummarizer,
+    llm_recursive_summarizer = providers.Singleton(
+        LLMRecursiveSummarizer,
         llm_handler=llm_handler,
         semantic_clusterer=embedding_semantic_clusterer
     )
@@ -124,7 +124,7 @@ class Container(containers.DeclarativeContainer):
         act_chunk_repo=act_chunk_repository,
         act_chunk_cluster_repo=act_chunk_cluster_repository,
         embedding_handler=embedding_handler,
-        llm_iterative_summarizer=llm_iterative_summarizer
+        llm_recursive_summarizer=llm_recursive_summarizer
     )
 
     acts_service = providers.Singleton(

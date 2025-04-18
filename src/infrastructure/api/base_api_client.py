@@ -3,9 +3,7 @@ from abc import ABC
 from typing import TypeVar, Generic, Dict, Any, Optional
 
 import requests
-from requests import RequestException
 
-from src.common.exceptions import APIError
 from src.core.dtos.base_dto import BaseDTO
 
 TBaseDTO = TypeVar('TBaseDTO', bound=BaseDTO)
