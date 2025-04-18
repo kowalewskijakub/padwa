@@ -115,10 +115,10 @@ def render_impact_analyses(analyses, min_relevancy=0):
                 st.markdown("**Szczegóły zmiany:**")
                 st.markdown(f"*Rodzaj zmiany: {change_type_map.get(analysis.change_type, analysis.change_type)}*")
                 if analysis.changing_chunk_text:
-                    st.markdown(f"**Akt zmieniający:**")
+                    st.markdown(f"**Wersja późniejsza:**")
                     st.markdown(analysis.changing_chunk_text)
                 if analysis.changed_chunk_text:
-                    st.markdown(f"**Akt zmieniany:**")
+                    st.markdown(f"**Wersja wcześniejsza:**")
                     st.markdown(analysis.changed_chunk_text)
 
                 if idx < len(filtered_impacts) - 1:
