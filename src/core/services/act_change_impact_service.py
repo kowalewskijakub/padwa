@@ -61,7 +61,6 @@ class ActChangeImpactService:
         if existing_impacts:
             return self._enrich_analysis_with_impacts(analyses, existing_impacts)
 
-        # Zbiera elementy do przetwarzania wsadowego
         items_with_ids = []
         for analysis in analyses:
             if analysis.change_type in ["modified", "appended", "removed"]:
@@ -78,14 +77,10 @@ class ActChangeImpactService:
                     identifier = (analysis.id, doc_chunk.id)
                     items_with_ids.append((identifier, input_dict))
 
-        # Definiuje funkcję przetwarzania dla wywołania LLM
         process_func = lambda input_dict: self.llm_handler.invoke(ImpactAssessmentResponse, input_dict)
-
-        # Przetwarza elementy w partii przy użyciu BatchProcessor
         with BatchProcessor(process_func=process_func) as processor:
             results = processor.process_batch(items_with_ids)
 
-        # Tworzy analizy wpływu z wyników wsadowych
         impact_analyses = []
         for identifier, response in results.items():
             analysis_id, doc_chunk_id = identifier
@@ -98,7 +93,6 @@ class ActChangeImpactService:
                 justification=response.justification
             ))
 
-        # Zapisuje analizy wpływu
         if impact_analyses:
             self.act_change_impact_analysis_repo.bulk_create(impact_analyses)
 
