@@ -55,137 +55,74 @@ def render_assess_impact_acts():
                 st.error(f"Błąd podczas analizy wpływu: {str(e)}")
 
     if 'impact_analyses' in st.session_state and st.session_state['impact_analyses']:
-        st.subheader("Analiza")
         render_impact_analyses(st.session_state['impact_analyses'])
 
 
-def render_impact_analyses(analyses):
+def render_impact_analyses(analyses, min_relevancy=0):
     """
-    Wyświetla wyniki analizy wpływu zmian aktów prawnych na dokumenty.
-    """
-    if not analyses:
-        st.info("Nie znaleziono analizy wpływu dla tej pary aktów.")
-        return
+    Renderuje analizy wpływu zmian w aktach prawnych na fragmenty dokumentów.
 
-    all_impacts = []
-    for analysis in analyses:
-        if analysis.impacts:
-            all_impacts.extend(analysis.impacts)
+    :param analyses: Lista analiz wpływu
+    :param min_relevancy: Minimalna istotność fragmentu dokumentu do wyświetlenia
+    """
 
     doc_impacts = defaultdict(list)
     for analysis in analyses:
         for impact in analysis.impacts:
             doc_impacts[impact.doc_chunk_id].append((impact, analysis))
 
-    # Display relevancy metrics in three columns
-    if all_impacts:
-        col_avg, col_max, col_min = st.columns(3)
+    if not doc_impacts:
+        st.write("Brak powiązanych fragmentów dokumentów.")
+        return
 
-        with col_avg:
-            st.metric(
-                label="Średnia istotność",
-                value=f"{np.mean([i.relevancy for i in all_impacts]):.2f}",
-                delta=None
-            )
+    st.markdown(f"### Powiązane fragmenty dokumentów ({len(doc_impacts)})")
 
-        with col_max:
-            st.metric(
-                label="Najwyższa istotność",
-                value=f"{np.max([i.relevancy for i in all_impacts]):.2f}",
-                delta=None
-            )
+    # Sortuje fragmenty dokumentów według średniej istotności
+    sorted_docs = sorted(
+        doc_impacts.items(),
+        key=lambda x: sum(impact.relevancy for impact, _ in x[1]) / len(x[1]),
+        reverse=True
+    )
 
-        with col_min:
-            st.metric(
-                label="Najniższa istotność",
-                value=f"{np.min([i.relevancy for i in all_impacts]):.2f}",
-                delta=None
-            )
-    else:
-        st.info("Brak danych do wyświetlenia statystyk.")
+    for doc_chunk_id, impact_analysis_pairs in sorted_docs:
+        filtered_impacts = [(i, a) for i, a in impact_analysis_pairs if i.relevancy >= min_relevancy]
+        if not filtered_impacts:
+            continue
 
-    col1, col2 = st.columns([1, 2])
+        filtered_impacts.sort(key=lambda x: x[0].relevancy, reverse=True)
+        avg_relevancy = sum(i.relevancy for i, _ in filtered_impacts) / len(filtered_impacts)
+        doc_name = f"Dokument (ID chunka: {doc_chunk_id})"
 
-    with col1:
-        min_relevancy = st.slider(
-            "Minimalna istotność",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.5,
-            step=0.05
-        )
+        with st.expander(f"{doc_name} - Średnia istotność: {avg_relevancy:.2f}", expanded=False):
+            # Wyświetla tekst fragmentu dokumentu tylko 1 raz
+            doc_chunk_text = filtered_impacts[0][0].doc_chunk_text
+            st.markdown("**Fragment dokumentu:**")
+            st.markdown(doc_chunk_text)
+            st.markdown("---")
 
-    with col2:
-        if all_impacts:
-            relevancy_values = [impact.relevancy for impact in all_impacts]
-            fig = px.histogram(
-                x=relevancy_values,
-                nbins=10,
-            )
-            fig.update_layout(height=200, margin=dict(l=20, r=20, t=30, b=20))
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("Brak danych do wyświetlenia statystyk.")
+            for idx, (impact, analysis) in enumerate(filtered_impacts):
+                st.markdown(f"#### Analiza {idx + 1}")
+                metric_col, text_col = st.columns([1, 3])
+                with metric_col:
+                    st.metric(
+                        label="Istotność",
+                        value=f"{impact.relevancy:.2f}",
+                        delta=None
+                    )
+                with text_col:
+                    st.markdown(f"**Uzasadnienie:**\n{impact.justification}")
 
-    if doc_impacts:
-        st.markdown(f"### Powiązane fragmenty dokumentów ({len(doc_impacts)})")
+                st.markdown("**Szczegóły zmiany:**")
+                st.markdown(f"*Rodzaj zmiany: {change_type_map.get(analysis.change_type, analysis.change_type)}*")
+                if analysis.changing_chunk_text:
+                    st.markdown(f"**Akt zmieniający:**")
+                    st.markdown(analysis.changing_chunk_text)
+                if analysis.changed_chunk_text:
+                    st.markdown(f"**Akt zmieniany:**")
+                    st.markdown(analysis.changed_chunk_text)
 
-        # Sort documents by average relevancy
-        sorted_docs = sorted(
-            doc_impacts.items(),
-            key=lambda x: sum(impact.relevancy for impact, _ in x[1]) / len(x[1]),
-            reverse=True
-        )
-
-        for doc_chunk_id, impact_analysis_pairs in sorted_docs:
-            filtered_impacts = [(i, a) for i, a in impact_analysis_pairs if i.relevancy >= min_relevancy]
-
-            if not filtered_impacts:
-                continue
-
-            filtered_impacts.sort(key=lambda x: x[0].relevancy, reverse=True)
-
-            avg_relevancy = sum(i.relevancy for i, _ in filtered_impacts) / len(filtered_impacts)
-
-            doc_name = f"Dokument (ID chunka: {doc_chunk_id})"
-
-            with st.expander(f"{doc_name} - Istotność: {avg_relevancy:.2f}", expanded=False):
-                for idx, (impact, analysis) in enumerate(filtered_impacts):
-                    metric_col, text_col = st.columns([1, 3])
-                    with metric_col:
-                        st.metric(
-                            label="Istotność",
-                            value=f"{impact.relevancy:.2f}",
-                            delta=None
-                        )
-
-                    with text_col:
-                        st.markdown(f"**Uzasadnienie:**\n{impact.justification}")
-
-                    st.divider()
-                    comp_col, doc_col = st.columns(2)
-
-                    with comp_col:
-                        st.markdown("**Przepisy:**")
-                        st.markdown(
-                            f"*Rodzaj zmiany: {change_type_map.get(analysis.change_type, analysis.change_type)}*")
-
-                        if analysis.changing_chunk_text:
-                            st.markdown(f"**Akt zmieniający:**")
-                            st.markdown(analysis.changing_chunk_text)
-
-                        if analysis.changed_chunk_text:
-                            st.markdown(f"**Akt zmieniany:**")
-                            st.markdown(analysis.changed_chunk_text)
-
-                    with doc_col:
-                        st.markdown("**Fragment dokumentu:**")
-                        st.markdown(impact.doc_chunk_text)
-
-                    if idx < len(filtered_impacts) - 1:
-                        st.divider()
-    else:
-        st.info("Nie znaleziono powiązanych fragmentów dokumentów.")
+                if idx < len(filtered_impacts) - 1:
+                    st.markdown("---")
 
 
 st.header("Ocena wpływu zmian w aktach prawnych")

@@ -98,8 +98,8 @@ class ActChangeImpactService:
 
         return self._enrich_analysis_with_impacts(analyses, impact_analyses)
 
-    def _enrich_analysis_with_impacts(self, analyses: List[ActChangeAnalysis],
-                                      impacts: List[ActChangeImpactAnalysis]) -> List[ActChangeAnalysisDTO]:
+    def _enrich_analysis_with_impacts(self, analyses: list[ActChangeAnalysis],
+                                      impacts: list[ActChangeImpactAnalysis]) -> list[ActChangeAnalysisDTO]:
         """
         Wzbogaca analizy zmian o wyniki analizy wpływu i teksty fragmentów.
 

@@ -1,8 +1,12 @@
 from typing import List
 
+from sqlalchemy.orm import Session
+from sqlmodel import and_
+
 from src.core.models.doc import DocChunk as DocChunkDomain
 from src.infrastructure.database.database_manager import DatabaseManager
-from src.infrastructure.database.orms.doc_orm import DocChunk as DocChunkORM
+from src.infrastructure.database.orms.doc_orm import DocChunk as DocChunkORM, Doc as DocORM
+from src.infrastructure.repository.base_repository import TORM
 from src.infrastructure.repository.embeddable.embeddable_base_repository import EmbeddableBaseRepository
 
 
@@ -21,6 +25,18 @@ class DocChunkRepository(EmbeddableBaseRepository[DocChunkORM, DocChunkDomain]):
         :param db_manager: Menedżer bazy danych
         """
         super().__init__(db_manager, DocChunkORM, DocChunkDomain)
+
+    def _get_all(self, session: Session) -> List[TORM]:
+        """
+        Zwraca wszystkie fragmenty (chunki) dokumentów, które nie są zarchiwizowane lub nieistotne.
+
+        :param session: Sesja bazy danych
+        """
+        return (
+            session.query(DocChunkORM)
+            .join(DocORM)
+            .filter(and_(DocORM.is_archived.is_(False)), DocORM.flag.is_(False))
+        ).all()
 
     def get_for_doc(self, doc_id: int) -> List[DocChunkDomain]:
         """
@@ -41,3 +57,14 @@ class DocChunkRepository(EmbeddableBaseRepository[DocChunkORM, DocChunkDomain]):
         """
         with self.db.session_scope() as session:
             return session.query(DocChunkORM).count()
+
+    def get_top_n_similar(self, embedding: list[float], n: int = 5):
+        """
+        Pobiera n najbliższych fragmentów (chunków) dokumentów na podstawie embeddingu.
+
+        :param embedding: Wektor embeddingu
+        :param n: Liczba najbliższych fragmentów (chunków) do pobrania
+        """
+        with self.db.session_scope() as session:
+            all_entities = session.query(DocChunkORM).all()
+            return self._get_top_n_similar(all_entities, embedding, n)

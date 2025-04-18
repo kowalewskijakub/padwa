@@ -119,6 +119,15 @@ class BaseRepository(ABC, Generic[TORM, TDomain]):
             orm_objs = session.query(self.orm_class).all()
             return self._to_domain_list(orm_objs)
 
+    def _get_all(self, session: Session) -> List[TORM]:
+        """
+        Pobiera wszystkie encje tego typu w obrębie istniejącej sesji.
+
+        :param session: Sesja SQLAlchemy
+        :return: Lista wszystkich encji jako obiekty ORM
+        """
+        return session.query(self.orm_class).all()
+
     def bulk_create(self, models: List[TDomain]) -> List[TDomain]:
         """
         Tworzy wiele nowych encji w bazie danych.

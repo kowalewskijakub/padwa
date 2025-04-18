@@ -57,25 +57,27 @@ class EmbeddableBaseRepository(BaseRepository[TEmbeddableORM, TEmbeddableDomain]
             )
             return self._to_domain_list(entities)
 
-    def get_top_n_similar(self, embedding: List[float], n: int = 5) -> List[TEmbeddableDomain]:
+    def _get_top_n_similar(
+            self,
+            all_entities: [TEmbeddableORM],
+            embedding: list[float], n: int = 5
+    ) -> list[TEmbeddableDomain]:
         """
         Pobiera n najbardziej podobnych encji do zadanego embeddingu.
 
+        :param all_entities: Lista wszystkich encji
         :param embedding: Wektor embeddingu
         :param n: Liczba encji do zwrócenia
         :return: Lista najbardziej podobnych encji jako modele domenowe
         """
-        with self.db.session_scope() as session:
-            all_entities = session.query(self.orm_class).filter(self.orm_class.embedding.isnot(None)).all()
+        similarities = []
+        for entity in all_entities:
+            entity_embedding = entity.embedding
+            similarity = np.dot(embedding, entity_embedding) / (
+                    np.linalg.norm(embedding) * np.linalg.norm(entity_embedding))
+            similarities.append((entity, similarity))
 
-            similarities = []
-            for entity in all_entities:
-                entity_embedding = entity.embedding
-                similarity = np.dot(embedding, entity_embedding) / (
-                        np.linalg.norm(embedding) * np.linalg.norm(entity_embedding))
-                similarities.append((entity, similarity))
+        similarities.sort(key=lambda x: x[1], reverse=True)
 
-            similarities.sort(key=lambda x: x[1], reverse=True)
-
-            top_entities = [entity for entity, _ in similarities[:n]]
-            return self._to_domain_list(top_entities)
+        top_entities = [entity for entity, _ in similarities[:n]]
+        return self._to_domain_list(top_entities)

@@ -40,6 +40,7 @@
         <template>
             Jesteś wyspecjalizowanym asystentem prawnym.
             Twoim zadaniem jest wygenerowanie podsumowania dla tekstu oraz określenie, czy jest on istotny.
+            W razie, gdyby nie był, podnieś flagę, poprzez wrócenie wartości flag = "true".
 
             Tekst:
             {text}
