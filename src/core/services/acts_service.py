@@ -251,7 +251,7 @@ class ActsService:
             act_pdf,
             chunking_function=chunking_function,
             element_processors=element_processors,
-            min_font_size=10.0
+            min_font_size=9.75
         )
 
         self.act_chunk_repo.bulk_create(

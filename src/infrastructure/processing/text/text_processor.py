@@ -30,50 +30,82 @@ class TextProcessor:
     ) -> Union[str, List[str]]:
         """
         Wyodrębnia tekst z dokumentu PDF przy użyciu PyMuPDF.
+        Superscript tekst jest zawsze dołączany i oznaczany nawiasami '()',
+        niezależnie od min_font_size, chyba że tekst superscript to samo ")",
+        wtedy jest pomijany.
 
         :param pdf_path: Ścieżka do pliku PDF
-        :param element_processors: Lista funkcji do przetwarzania indywidualnych elementów tekstu
+        :param element_processors: Lista funkcji do przetwarzania indywidualnych elementów tekstu (spanów)
         :param extract_by_page: Czy wyodrębniać tekst strona po stronie (True) czy cały dokument naraz (False)
-        :param min_font_size: Minimalny rozmiar czcionki do uwzględnienia (opcjonalny)
+        :param min_font_size: Minimalny rozmiar czcionki do uwzględnienia dla tekstu niebędącego superindeksem (opcjonalny)
         :return: Pełny tekst dokumentu lub lista tekstów stron
         :raises TextProcessingError: Gdy nie udało się wyodrębnić tekstu
         """
+        if element_processors is None:
+            element_processors = []
+
         try:
             doc = fitz.open(pdf_path)
-            result = []
+            result_pages_text = []
 
-            for page in doc:
-                blocks = page.get_text("dict")["blocks"]
-                page_text = ""
+            font_is_superscript = 1
+
+            for page_num, page in enumerate(doc):
+                blocks = page.get_text("dict", sort=True)["blocks"]
+                current_page_lines = []
 
                 for block in blocks:
-                    if block["type"] == 0:  # Typ 0 oznacza tekst
+                    if block["type"] == 0:
                         for line in block["lines"]:
+                            processed_span_texts_for_line = []
                             for span in line["spans"]:
-                                if min_font_size is None or span["size"] >= min_font_size:
-                                    page_text += span["text"]
+                                stripped_processed_text = span["text"].strip()
+                                if not stripped_processed_text:
+                                    continue
 
-                # Zastosowanie procesorów dla pojedynczej strony
-                if element_processors:
-                    for processor in element_processors:
-                        page_text = processor(page_text)
+                                is_superscript = (span["flags"] & font_is_superscript) != 0
+                                text_to_add = ""
 
-                if extract_by_page:
-                    result.append(page_text)
-                else:
-                    result.append(page_text)
+                                if is_superscript:
+                                    if ')' in stripped_processed_text:  # Ignoruje superscript, który zawiera zamknięty
+                                        # nawias klamrowy – ma to na celu uniknięcie
+                                        # traktowania przypisu jako indeksu
+                                        text_to_add = ""
+                                    else:
+                                        text_to_add = f"({stripped_processed_text})"
+                                elif min_font_size is None or span["size"] >= min_font_size:
+                                    text_to_add = stripped_processed_text
+
+                                if text_to_add:
+                                    processed_span_texts_for_line.append(text_to_add)
+
+                            if processed_span_texts_for_line:
+                                current_page_lines.append(" ".join(filter(None, processed_span_texts_for_line)))
+
+                page_text_final = "\n".join(filter(None, current_page_lines)).strip()
+                result_pages_text.append(page_text_final)
 
             doc.close()
 
+            if not any(result_pages_text) and doc.page_count > 0:
+                _logger.warning(f"Nie wyodrębniono tekstu z PDF '{pdf_path}'. "
+                                "Może to być plik obrazowy, cały tekst mógł zostać odfiltrowany, "
+                                "lub jest to pusty dokument.")
+
+            # Stosuje przypisane funkcje przetwarzające do każdego elementu tekstu (np. usuwa dewizy)
+            for processor in element_processors:
+                for i in range(len(result_pages_text)):
+                    result_pages_text[i] = processor(result_pages_text[i])
+
             if extract_by_page:
-                return result
+                return result_pages_text
             else:
-                full_text = "\n\n".join(result).strip()
+                full_text = "\n\n".join(filter(None, result_pages_text)).strip()
                 return full_text
 
         except Exception as e:
-            _logger.error(f"Błąd podczas wyodrębniania tekstu z PDF: {str(e)}")
-            raise TextProcessingError(f"Nie udało się wyodrębnić tekstu z PDF: {str(e)}")
+            _logger.error(f"Błąd podczas wyodrębniania tekstu z PDF '{pdf_path}': {str(e)}")
+            raise TextProcessingError(f"Nie udało się wyodrębnić tekstu z PDF '{pdf_path}': {str(e)}")
 
     @staticmethod
     def process_document(
