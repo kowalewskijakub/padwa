@@ -6,6 +6,8 @@ from src.core.models.act import ActChangeImpactAnalysis, ActChangeAnalysis
 from src.infrastructure.processing.embedding.embedding_handler import EmbeddingHandler
 from src.infrastructure.processing.llm.llm_handler import LLMHandler
 from src.infrastructure.processing.llm.llm_response_models import ImpactAssessmentResponse
+from src.infrastructure.repository.core.act_repository import ActRepository
+from src.infrastructure.repository.core.doc_repository import DocRepository
 from src.infrastructure.repository.embeddable.act_chunk_repository import ActChunkRepository
 from src.infrastructure.repository.embeddable.doc_chunk_repository import DocChunkRepository
 from src.infrastructure.repository.functional.act_change_analysis_repo import ActChangeAnalysisRepository
@@ -17,9 +19,17 @@ class ActChangeImpactService:
     Serwis odpowiedzialny za analizę wpływu zmian w aktach prawnych na fragmenty dokumentów.
     """
 
+    _change_type_mapping = {
+        "modified": "zmiana brzmienia przepisu",
+        "appended": "dodanie nowego przepisu",
+        "removed": "usunięcie przepisu"
+    }
+
     def __init__(
             self,
+            act_repo: ActRepository,
             act_change_analysis_repo: ActChangeAnalysisRepository,
+            doc_repo: DocRepository,
             act_chunk_repo: ActChunkRepository,
             doc_chunk_repo: DocChunkRepository,
             act_change_impact_analysis_repo: ActChangeImpactAnalysisRepository,
@@ -29,15 +39,19 @@ class ActChangeImpactService:
         """
         Inicjalizuje serwis analizy wpływu.
 
+        :param act_repo: Repozytorium dla aktów prawnych
         :param act_change_analysis_repo: Repozytorium dla analiz zmian
         :param act_chunk_repo: Repozytorium dla fragmentów aktów
+        :param doc_repo: Repozytorium dla dokumentów
         :param doc_chunk_repo: Repozytorium dla fragmentów dokumentów
         :param act_change_impact_analysis_repo: Repozytorium dla analiz wpływu
         :param embedding_handler: Obsługa osadzania (embeddingów)
         :param llm_handler: Obsługa modeli językowych
         """
+        self.act_repo = act_repo
         self.act_change_analysis_repo = act_change_analysis_repo
         self.act_chunk_repo = act_chunk_repo
+        self.doc_repo = doc_repo
         self.doc_chunk_repo = doc_chunk_repo
         self.act_change_impact_analysis_repo = act_change_impact_analysis_repo
         self.embedding_handler = embedding_handler
@@ -63,19 +77,25 @@ class ActChangeImpactService:
 
         items_with_ids = []
         for analysis in analyses:
-            if analysis.change_type in ["modified", "appended", "removed"]:
-                chunk_id = analysis.changing_chunk_id or analysis.changed_chunk_id
-                chunk = self.act_chunk_repo.get_by_id(chunk_id)
-                similar_doc_chunks = self.doc_chunk_repo.get_top_n_similar(chunk.embedding, n=1)
-                for doc_chunk in similar_doc_chunks:
-                    input_dict = {
-                        "change_type": analysis.change_type,
-                        "changed_text": analysis.changed_chunk_text,
-                        "changing_text": analysis.changing_chunk_text,
-                        "doc_text": doc_chunk.text,
-                    }
-                    identifier = (analysis.id, doc_chunk.id)
-                    items_with_ids.append((identifier, input_dict))
+            chunk_id = analysis.changing_chunk_id or analysis.changed_chunk_id  # Preferuje nowe brzmienie tekstu
+            chunk = self.act_chunk_repo.get_by_id(chunk_id)
+            act = self.act_repo.get_by_id(chunk.reference_id)
+            similar_doc_chunks = self.doc_chunk_repo.get_top_n_similar(chunk.embedding, n=1)
+            for doc_chunk in similar_doc_chunks:
+                doc = self.doc_repo.get_by_id(doc_chunk.reference_id)
+                input_dict = {
+                    "change_type": self._change_type_mapping.get(analysis.change_type),  # Tłumaczy typ zmiany
+                    # na j. polski
+                    "changed_text": analysis.changed_chunk_text,
+                    "changing_text": analysis.changing_chunk_text,
+                    "act_title": act.title,
+                    "act_summary": act.summary,
+                    "doc_text": doc_chunk.text,
+                    "doc_title": doc.title,
+                    "doc_summary": doc.summary,
+                }
+                identifier = (analysis.id, doc_chunk.id)
+                items_with_ids.append((identifier, input_dict))
 
         process_func = lambda input_dict: self.llm_handler.invoke(ImpactAssessmentResponse, input_dict)
         with BatchProcessor(process_func=process_func) as processor:

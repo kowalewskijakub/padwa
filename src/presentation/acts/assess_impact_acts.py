@@ -1,7 +1,5 @@
 from collections import defaultdict
 
-import numpy as np
-import plotly.express as px
 import streamlit as st
 
 from src.presentation.app_state import get_state

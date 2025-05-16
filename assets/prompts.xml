@@ -1,80 +1,130 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <prompts>
-    <prompt id="act-summarization">
-        <template>
-            Jesteś wyspecjalizowanym asystentem prawnym.
-            Twoim zadaniem jest wygenerowanie podsumowania dla tekstu oraz określenie, czy jest on istotny.
-
-            Tekst:
-            {text}
-
-            Najpierw oceń, czy tekst jest istotny. Tekst powinien być częścią lub całością aktu prawnego o randze
-            powszechnie obowiązującej w prawie polskim lub UE.
-            Tekst jest nieistotny, jeśli jest:
-            - dokumentem dotyczącym konkretnej osoby lub zdarzenia (np. premier powołuje dyrektora),
-            - orzeczeniem sądowym, decyzją administracyjną,
-            - nie jest w ogóle dokumentem prawnym (np. artykułem prasowym, przepisem kulinarnym).
-
-            {format_instructions}
-        </template>
-    </prompt>
     <prompt id="act-cluster-summarization">
         <template>
-            Jesteś wyspecjalizowanym asystentem prawnym.
-            Twoim zadaniem jest wygenerowanie podsumowania dla tekstu oraz określenie, czy jest on istotny.
+            Podsumuj w 120 słowach załączony klaster fragmentów aktu prawnego lub podsumowań aktu prawnego. Proces ten
+            jest częścią rekurencyjnego systemu streszczania, gdzie na wyższych poziomach streszczasz już istniejące
+            podsumowania.
 
-            Tekst:
-            {text}
+            ### Instrukcje
+            1. **Struktura odpowiedzi:**
+            - **Tytuł:** Krótki tytuł opisujący zawartość klastra.
+            - **Podsumowanie:**
+            - Na **poziomie 0 (surowe klastry fragmentów)**: Stwórz szczegółowe streszczenie w 120 słowach.
+            - Na **wyższych poziomach (podsumowania)**: Stwórz bardziej ogólne streszczenie, syntetyzujące
+            informacje z niższych poziomów, w 120 słowach.
+            - **Flaga:**
+            - **0** – klaster lub podsumowanie dotyczy aktu prawnego.
+            - **1** – klaster lub podsumowanie budzi wątpliwości co do charakteru prawnego (np. jest przepisem
+            kulinarnym, artykułem prasowym).
 
-            Najpierw oceń, czy tekst jest istotny. Tekst powinien być podsumowaniem lub fragmentem aktu prawnego
-            o randze powszechnie obowiązującej w prawie polskim lub UE.
-            Tekst jest nieistotny, jeśli opisuje:
-            - konkretną osobę lub zdarzenie (np. premier powołuje dyrektora),
-            - orzeczenia sądowe, decyzje administracyjne,
-            - cokolwiek innego (np. jest przepisem kulinarnym).
-
+            2. **Uwagi:**
+            - Ignoruj dane osobowe, ceny lub inne nieistotne szczegóły w dokumencie – traktuj je jako przykładowe.
+            - Odnoś się do podsumowywanego klastra jako "akt prawny".
+            - Odpowiedź sformatuj zgodnie z następującą instrukcją:
+            """
             {format_instructions}
+            """
+
+            ### Załączone materiały do analizy:
+            1. **Klaster fragmentów:**
+            - Poziom klastra: {cluster_level}
+            - Tekst:
+            """
+            {text}
+            """
         </template>
     </prompt>
     <prompt id="doc-summarization">
         <template>
-            Jesteś wyspecjalizowanym asystentem prawnym.
-            Twoim zadaniem jest wygenerowanie podsumowania dla tekstu oraz określenie, czy jest on istotny.
-            W razie, gdyby nie był, podnieś flagę, poprzez wrócenie wartości flag = "true".
+            Podsumuj w 120 słowach załączony dokument organizacyjny o charakterze prawnym, który może być np.
+            regulaminem, procedurą, wzorem pisma lub pozwem. Zdefiniuj tytuł dla analizowanego dokumentu oraz określ
+            właściwą flagę.
 
-            Tekst:
-            {text}
+            ### Instrukcje
+            1. **Struktura odpowiedzi:**
+            - **Tytuł:** Krótki, precyzyjny tytuł dokumentu odzwierciedlający jego zawartość.
+            - **Podsumowanie:** Zwięzłe podsumowanie dokumentu w dokładnie 120 słowach, opisujące jego cel i
+            główne elementy.
+            - **Flaga:**
+            - **0** – dokument jest całością lub częścią dokumentu organizacyjnego o charakterze prawnym.
+            - **1** – dokument budzi wątpliwości co do charakteru prawnego (np. jest przepisem kulinarnym,
+            artykułem prasowym).
 
-            Najpierw oceń, czy tekst jest istotny. Tekst jest istotny, jeżeli jest częścią lub całością jakiegoś
-            dokumentu organizacyjnego.
-
-            Dokument organizacyjny to tworzone na potrzeby naszej firmy regulaminy, procedury lub wzory pism.
-
-            Użyte w dokumencie dane osobowe są przykładowe i nie mają znaczenia dla analizy.
-
+            2. **Uwagi:**
+            - Ignoruj dane osobowe, ceny lub inne nieistotne szczegóły w dokumencie – traktuj je jako przykładowe.
+            - Odpowiedź sformatuj zgodnie z następującą instrukcją:
+            """
             {format_instructions}
+            """
+
+            ### Załączone materiały do analizy:
+            1. **Dokument organizacyjny:**
+            - Tekst dokumentu:
+            """
+            {text}
+            """
         </template>
     </prompt>
     <prompt id="impact-assessment">
         <template>
-            Jesteś wyspecjalizowanym asystentem prawnym.
-            Twoim zadaniem jest ocena, czy zmiana, jaka zaszła w akcie prawnym może wymagać przejrzenia przez
-            prawnika podanego dokumentu organizacyjnego.
+            Jesteś prawnikiem specjalizującym się w analizie zgodności dokumentów organizacyjnych z przepisami prawa.
+            Twoim zadaniem jest ocena, czy załączona zmiana w ustawie wymaga dostosowania załączonego fragmentu
+            dokumentu organizacyjnego, takiego jak wzór umowy lub regulamin wewnętrzny wykorzystywany przez organizację.
 
-            Przez zmianę należy rozumieć następujące rodzaje:
-            1. zmiana w treści ("modified") – wtedy dostarczone są dla Ciebie fragmenty aktu prawnego
-            w wersji wcześniejszej i późniejszej, które się zmieniły,
-            2. dodanie nowej normy ("added") – wtedy dostarczone są dla Ciebie tylko fragmenty w wersji późniejszej,
-            3. usunięcie normy ("removed") – wtedy dostarczone są dla Ciebie tylko fragmenty w wersji wcześniejszej.
+            ### Instrukcje:
+            1. **Rola i cel:**
+            - Działaj jako ekspert prawny oceniający wpływ konkretnej zmiany w ustawie na dany dokument
+            organizacyjny.
+            - Skup się wyłącznie na załączonej zmianie w ustawie i jej bezpośrednim wpływie na załączony dokument.
+            Nie uwzględniaj teoretycznych ani przyszłych zmian.
 
-            Dokument organizacyjny to tworzone na potrzeby naszej firmy regulaminy, procedury lub wzory pism.
+            2. **Kroki do wykonania:**
+            - **Krok 1:** Oceń, czy na podstawie załączonych danych (zmiana w ustawie i dokument organizacyjny)
+            możesz dokonać oceny.
+            - **Krok 2:** Zidentyfikuj argumenty za i przeciw konieczności dostosowania dokumentu organizacyjnego
+            w świetle zmiany w ustawie.
+            - **Krok 3:** Zważ argumenty i zdecyduj, czy przeważają te za koniecznością dostosowania, czy przeciw.
 
-            Rodzaj zmiany: {change_type}
-            Fragment aktu prawnego w wersji wcześniejszej: {changed_text}
-            Fragment aktu prawnego w wersji późniejszej: {changing_text}
-            Fragment dokumentu organizacyjnego: {doc_text}
+            3. **Struktura odpowiedzi:**
+            - **Ocena istotności:** Podaj ocenę w skali od 0.00 do 1.00, gdzie:
+            - Ocena **1.00** oznacza, że miana w ustawie na pewno wymaga dostosowania dokumentu.
+            - Ocena **0.50 lub wyższa** oznacza, że zmiana w ustawie raczej wymaga dostosowania dokumentu.
+            - Ocena **poniżej 0.50** oznacza, że zmiana w ustawie raczej nie wymaga dostosowania dokumentu.
+            - Ocena **0.00** oznacza, że zmiana w ustawie na pewno nie wymaga dostosowania dokumentu lub brakuje
+            danych do dokonania oceny.
+            - **Uzasadnienie:** Podsumuj argumenty za i przeciw, które rozważyłeś oraz wyjaśnij, dlaczego wybrałeś
+            daną ocenę. Uzasadnienie powinno mieć 120 słów.
 
+            4. **Uwagi:**
+            - Skup się wyłącznie na załączonej zmianie w ustawie i jej bezpośrednim wpływie na dokument.
+            - Nie uwzględniaj zewnętrznych czynników ani hipotetycznych scenariuszy.
+            - Odpowiedź sformatuj zgodnie z następującą instrukcją:
+            """
             {format_instructions}
+            """
+
+            ### Załączone materiały do analizy:
+            1. **Zmiana w prawie:**
+            - Rodzaj zmiany: {change_type}
+            - Nazwa ustawy: {act_title}
+            - Podsumowanie ustawy: {act_summary}
+            - Tekst we wcześniejszym brzmieniu:
+            """
+            {changed_text}
+            """
+            - Tekst w nowym brzmieniu:
+            """
+            {changing_text}
+            """
+
+            2. **Dokument organizacyjny:**
+            - Nazwa dokumentu: {doc_title}
+            - Podsumowanie dokumentu: {doc_summary}
+            - Tekst dokumentu:
+            """
+            {doc_text}
+            """
         </template>
     </prompt>
 </prompts>

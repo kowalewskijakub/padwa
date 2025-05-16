@@ -39,10 +39,10 @@ class ActComparisonsService:
         :param text: Tekst chunka
         :return: Numer artykułu (np. "Art. 1.") lub None, jeśli nie znaleziono
         """
-        match = regex.match(r"Art\. \d{1,}(\w{0,4})(\p{No}{0,2})\.", text)
+        match = regex.match(r"Art\. \d+(\w{0,4})(\s+\(\w*\)\s+)?\.", text)
         return match.group(0) if match else None
 
-    def compare_acts(self, changing_act_id: int, changed_act_id: int, similarity_threshold: float = 0.95) -> List[
+    def compare_acts(self, changing_act_id: int, changed_act_id: int, similarity_threshold: float = 0.985) -> List[
         ActChangeAnalysisDTO]:
         """
         Porównuje dwa akty prawne na podstawie numerów artykułów i zwraca różnice.

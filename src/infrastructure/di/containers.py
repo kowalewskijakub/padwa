@@ -169,7 +169,9 @@ class Container(containers.DeclarativeContainer):
 
     act_change_impact_service = providers.Singleton(
         ActChangeImpactService,
+        act_repo=act_repository,
         act_change_analysis_repo=act_change_analysis_repository,
+        doc_repo=doc_repository,
         act_chunk_repo=act_chunk_repository,
         doc_chunk_repo=doc_chunk_repository,
         act_change_impact_analysis_repo=act_change_impact_analysis_repository,

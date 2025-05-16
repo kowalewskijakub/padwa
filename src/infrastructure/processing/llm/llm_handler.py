@@ -6,9 +6,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 from src.common.batch_processor import BatchProcessor
 from src.infrastructure.processing.llm.llm_prompts_retriever import get_llm_prompt_retriever
-from src.infrastructure.processing.llm.llm_response_models import ActSummaryResponse, LLMResponse, \
-    ActClusterSummaryResponse, \
-    DocSummaryResponse, ImpactAssessmentResponse
+from src.infrastructure.processing.llm.llm_response_models import (LLMResponse, ActClusterSummaryResponse,
+                                                                   DocSummaryResponse, ImpactAssessmentResponse)
 
 TLLMResponse = TypeVar("TLLMResponse", bound=LLMResponse)
 
@@ -22,7 +21,6 @@ class LLMHandler:
     """
 
     _prompt_mapping = {
-        ActSummaryResponse: "act-summarization",
         ActClusterSummaryResponse: "act-cluster-summarization",
         DocSummaryResponse: "doc-summarization",
         ImpactAssessmentResponse: "impact-assessment",

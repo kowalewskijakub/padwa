@@ -1,4 +1,3 @@
-# wersja: chet-theia
 from pydantic import BaseModel, Field
 
 
@@ -12,15 +11,10 @@ class LLMSummaryResponse(LLMResponse):
 
 class ImpactAssessmentResponse(LLMResponse):
     """
-    Klasa odpowiedzi LLM dla oceny wpływu zmiany.
+    Model odpowiedzi zgodny z klasą LLMHandler służący realizacji funkcjonalności oceny istotności zmian.
     """
-    relevancy: float = Field(
-        description="Ocenę wpływu zmiany na dokument organizacyjny w skali od 0 do 1, "
-                    "gdzie 1 oznacza pewny wpływ, a 0 brak wpływu"
-    )
-    justification: str = Field(
-        description="Uzasadnienie Twojej oceny wpływu zmiany w akcie prawnym na fragment dokumentu."
-    )
+    relevancy: float = Field(description="Ocena istotności")
+    justification: str = Field(description="Uzasadnienie")
 
 
 class ActSummaryResponse(LLMSummaryResponse):
@@ -30,16 +24,8 @@ class ActSummaryResponse(LLMSummaryResponse):
     Zawiera podsumowanie dostarczonego aktu prawnego oraz flagę sygnalizującą, że dostarczony tekst
     powinien być pominięty w kontekście przyjętej domeny.
     """
-    summary: str = Field(
-        description="Zwięzłe i konkretne podsumowanie tekstu w języku polskim (200-300 słów)"
-    )
-    flag: bool = Field(
-        description=
-        """
-        False – jeżeli dostarczony tekst jest istotny
-        True  – w przeciwnym wypadku
-        """
-    )
+    summary: str = Field(description="Podsumowanie")
+    flag: bool = Field(description="Flaga")
 
 
 class DocSummaryResponse(LLMSummaryResponse):
@@ -49,19 +35,9 @@ class DocSummaryResponse(LLMSummaryResponse):
     Zawiera podsumowanie dostarczonego dokumentu oraz flagę sygnalizującą, że dostarczony tekst
     powinien być pominięty w kontekście przyjętej domeny.
     """
-    title: str = Field(
-        description="Tytuł dostarczonego tekstu"
-    )
-    summary: str = Field(
-        description="Zwięzłe i konkretne podsumowanie tekstu w języku polskim (200-300 słów)"
-    )
-    flag: bool = Field(
-        description=
-        """
-        False – jeżeli dostarczony tekst jest istotny
-        True  – w przeciwnym wypadku
-        """
-    )
+    title: str = Field(description="Tytuł")
+    summary: str = Field(description="Podsumowanie")
+    flag: bool = Field(description="Flaga")
 
 
 class ClusterSummaryResponse(LLMSummaryResponse):
@@ -71,16 +47,8 @@ class ClusterSummaryResponse(LLMSummaryResponse):
     Zawiera podsumowanie dostarczonych przepisów oraz flagę sygnalizującą, że dostarczony tekst
     powinien być pominięty w kontekście przyjętej domeny.
     """
-    summary: str = Field(
-        description="Zwięzłe i konkretne podsumowanie tekstu w języku polskim (200-300 słów)"
-    )
-    flag: bool = Field(
-        description=
-        """
-        False – jeżeli dostarczony tekst jest istotny
-        True  – w przeciwnym wypadku
-        """
-    )
+    summary: str = Field(description="Podsumowanie")
+    flag: bool = Field(description="Flaga")
 
 
 class ActClusterSummaryResponse(ClusterSummaryResponse):

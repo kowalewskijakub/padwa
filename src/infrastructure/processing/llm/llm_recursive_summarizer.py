@@ -110,7 +110,10 @@ class LLMRecursiveSummarizer:
 
             if combined_text:
                 valid_clusters.append(cluster)
-                batch_args.append((str(idx), {"text": combined_text}))
+                batch_args.append((str(idx), {
+                    "text": combined_text,
+                    'cluster_level': 0,
+                }))
 
         if batch_args:
             batch_results = self.llm_handler.bulk_invoke(
@@ -185,7 +188,10 @@ class LLMRecursiveSummarizer:
             valid_meta_clusters.append(parent_cluster)
 
             combined_text = "\n\n".join(child_texts)
-            batch_args.append((str(i), {"text": combined_text}))
+            batch_args.append((str(i), {
+                "text": combined_text,
+                "cluster_level": level,
+            }))
 
         if batch_args:
             batch_results = self.llm_handler.bulk_invoke(
