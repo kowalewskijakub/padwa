@@ -80,7 +80,7 @@ class ActChangeImpactService:
             chunk_id = analysis.changing_chunk_id or analysis.changed_chunk_id  # Preferuje nowe brzmienie tekstu
             chunk = self.act_chunk_repo.get_by_id(chunk_id)
             act = self.act_repo.get_by_id(chunk.reference_id)
-            similar_doc_chunks = self.doc_chunk_repo.get_top_n_similar(chunk.embedding, n=1)
+            similar_doc_chunks = self.doc_chunk_repo.get_top_n_similar(chunk.embedding, n=3)
             for doc_chunk in similar_doc_chunks:
                 doc = self.doc_repo.get_by_id(doc_chunk.reference_id)
                 input_dict = {
