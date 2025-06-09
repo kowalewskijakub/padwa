@@ -1,3 +1,9 @@
+"""
+Moduł porównywania aktów prawnych.
+
+Umożliwia użytkownikowi porównanie dwóch wersji aktów prawnych
+oraz analizę wpływu wykrytych zmian na dokumentację wewnętrzną.
+"""
 from typing import List
 
 import pandas as pd
@@ -15,10 +21,11 @@ change_type_map = {
 
 def render_act_comparison():
     """
-    Renderuje interfejs do porównywania aktów prawnych.
+    Renderuje interfejs do porównywania dwóch wersji aktów prawnych.
 
-    Umożliwia wybór aktu bazowego i zmieniającego, a następnie ich porównanie.
-    Po wykonaniu porównania wyświetla wyniki w ramce danych i umożliwia analizę wpływu na dokumenty.
+    Umożliwia wybór aktu bazowego (wcześniejszego) i zmieniającego (późniejszego),
+    następnie wykonuje ich porównanie i wyświetla różnice w formie tabeli.
+    Dodatkowo pozwala na analizę wpływu wykrytych zmian na dokumentację wewnętrzną.
     """
     all_acts = get_state().acts_service.get_all()
     if not all_acts:
@@ -73,9 +80,12 @@ def render_act_comparison():
 
 def render_differences(differences: List[ActChangeAnalysisDTO]):
     """
-    Wyświetla wyniki porównania w ramce danych.
+    Wyświetla wyniki porównania aktów prawnych w formie tabeli.
 
-    :param differences: Lista obiektów ActChangeAnalysisDTO reprezentujących różnice
+    Prezentuje wykryte różnice między wersjami aktów w przejrzystej formie
+    tabelarycznej, pokazując rodzaj zmiany oraz treść fragmentów przed i po zmianie.
+
+    :param differences: Lista obiektów DTO reprezentujących wykryte różnice między aktami
     """
     df = pd.DataFrame([
         {

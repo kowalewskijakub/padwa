@@ -1,3 +1,10 @@
+"""
+Moduł zarządzania stanem aplikacji.
+
+Zawiera klasę AppState oraz funkcje do inicjalizacji i pobierania stanu
+aplikacji w ramach sesji Streamlit. Zarządza serwisami domenowymi
+dostępnymi dla warstwy prezentacji.
+"""
 from dataclasses import dataclass
 from typing import Optional
 
@@ -36,7 +43,9 @@ def get_state() -> AppState:
     """
     Pobiera stan aplikacji z session_state Streamlit.
 
-    :return: Obiekt AppState
+    Jeśli stan nie istnieje w session_state, tworzy nowy pusty obiekt AppState.
+
+    :return: Obiekt AppState zawierający stan aplikacji
     """
     if 'app_state' not in st.session_state:
         st.session_state.app_state = AppState()
@@ -46,9 +55,14 @@ def get_state() -> AppState:
 
 def initialize_state() -> bool:
     """
-    Inicjalizuje stan aplikacji.
+    Inicjalizuje stan aplikacji wraz z wszystkimi serwisami domenowymi.
 
-    :return: True, jeśli udało się zainicjalizować serwisy, False w przeciwnym razie
+    Tworzy instancje serwisów za pomocą kontenera dependency injection
+    oraz inicjalizuje bazę danych. Jeśli stan jest już zainicjalizowany,
+    zwraca True bez ponownej inicjalizacji.
+
+    :return: True, jeśli udało się zainicjalizować wszystkie serwisy
+    :raises ApplicationError: Gdy inicjalizacja nie powiedzie się
     """
     state = get_state()
 

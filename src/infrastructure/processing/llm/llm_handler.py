@@ -18,10 +18,11 @@ _logger = get_logger()
 
 class LLMHandler:
     """
-    Klasa do obsługi interakcji z modelami językowymi.
+    Serwis do obsługi interakcji z dużymi modelami językowymi (LLM).
 
     Używa LangChain LCEL do tworzenia łańcuchów przetwarzania między promptami,
-    modelami językowymi i parsowaniem wyjść.
+    modelami językowymi i parsowaniem wyjść. Obsługuje Google Generative AI
+    z automatycznym ponawianiem prób w przypadku błędów parsowania.
     """
 
     _prompt_mapping = {
@@ -34,7 +35,7 @@ class LLMHandler:
         """
         Inicjalizuje obiekt LLMHandler.
 
-        :param model_name: Nazwa modelu LLM OpenAI, który ma być wykorzystywany przez model
+        :param model_name: Nazwa modelu Google Generative AI do wykorzystania
         """
         self.model_name = model_name
         self.llm = ChatGoogleGenerativeAI(
@@ -123,12 +124,15 @@ class LLMHandler:
             model_class: Type[LLMResponse],
             args_list: list[Tuple[str, Dict[str, Any]]]) -> Optional[Dict[str, TLLMResponse]]:
         """
-        Wywołuje LLM z podanymi argumentami i zwraca strukturyzowany wynik.
-        Korzysta z metody invoke, która zawiera logikę ponawiania prób.
+        Wywołuje LLM wsadowo dla wielu zestawów argumentów.
+        
+        Przetwarza równolegle wiele zapytań do LLM wykorzystując BatchProcessor.
+        Korzysta z metody invoke dla każdego elementu, która zawiera logikę
+        ponawiania prób w przypadku błędów.
 
         :param model_class: Klasa modelu wyjściowego
         :param args_list: Lista krotek (identyfikator, argumenty do przekazania do promptu)
-        :return: Ustrukturyzowany wynik zgodny z modelem wyjściowym
+        :return: Słownik mapujący identyfikatory na strukturyzowane wyniki lub None w przypadku błędu
         """
 
         def process_item(item_args: Dict[str, Any]) -> TLLMResponse:

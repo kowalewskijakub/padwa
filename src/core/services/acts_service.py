@@ -15,6 +15,12 @@ from src.infrastructure.repository.functional.act_change_link_repo import ActCha
 
 
 class ActsService:
+    """
+    Serwis do zarządzania aktami prawnymi.
+    
+    Zapewnia funkcjonalności pobierania, przetwarzania, archiwizowania aktów prawnych
+    oraz zarządzania ich fragmentami i relacjami z innymi aktami.
+    """
 
     def __init__(
             self,
@@ -33,7 +39,7 @@ class ActsService:
         :param act_repo: Repozytorium do zarządzania aktami
         :param act_chunk_repo: Repozytorium do zarządzania fragmentami aktów
         :param act_change_link_repo: Repozytorium do zarządzania relacjami zmian aktów
-        :param embedding_handler: Serwis do zarządzania embedingami
+        :param embedding_handler: Serwis do zarządzania embeddingami
         :param embedding_semantic_clusterer: Serwis do grupowania semantycznego
         :param clusters_service: Serwis do zarządzania klastrami
         """
@@ -121,10 +127,10 @@ class ActsService:
 
     def find_base_acts_by_title(self, title: str) -> list[ActApiDTO]:
         """
-        Wyszukuje akty prawne zmieniające po tytule.
+        Wyszukuje akty prawne podstawowe (niebędące ustawami zmieniającymi) po tytule.
 
         :param title: Tytuł aktu
-        :return: Lista obiektów ActApiDTO
+        :return: Lista obiektów ActApiDTO reprezentujących akty podstawowe
         """
         acts = [Act.model_validate(act) for act in self.api_client.get_acts_by_title(title)]
         return [
@@ -134,10 +140,10 @@ class ActsService:
 
     def find_consolidation_acts_by_title(self, title: str) -> list[ActApiDTO]:
         """
-        Wyszukuje akty prawne zmieniające po tytule.
+        Wyszukuje teksty jednolite aktów prawnych po tytule.
 
         :param title: Tytuł aktu
-        :return: Lista obiektów ActApiDTO
+        :return: Lista obiektów ActApiDTO reprezentujących teksty jednolite
         """
         acts = [Act.model_validate(act) for act in self.api_client.get_acts_by_title(title)]
         return [
@@ -149,8 +155,7 @@ class ActsService:
         """
         Aktualizuje embeddingi dla wszystkich fragmentów aktów prawnych, które jeszcze ich nie mają.
 
-        @return: Liczba zaktualizowanych fragmentów (chunków)
-        @raises EmbeddingError: Gdy nie udało się zaktualizować embeddingów
+        :raises EmbeddingError: Gdy nie udało się zaktualizować embeddingów
         """
         try:
             # Pobierz chunki, które nie mają embeddingów
@@ -325,6 +330,7 @@ class ActsService:
         Pobiera listę aktów powiązanych dla danego aktu.
 
         :param act_id: ID aktu
+        :return: Lista aktów powiązanych jako obiekty ActProcessedDTO
         """
         related_ids = self.act_change_link_repo.get_referenced_acts(act_id)
         acts = self.act_repo.bulk_get_by_ids(related_ids)

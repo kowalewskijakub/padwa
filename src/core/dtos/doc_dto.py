@@ -1,3 +1,10 @@
+"""
+Moduł DTO dla dokumentów.
+
+Zawiera klasy Data Transfer Object używane do transferu
+danych o dokumentach prawnych między warstwami aplikacji.
+"""
+
 from typing import Optional, List
 
 from pydantic import ConfigDict, Field, AliasChoices
@@ -7,7 +14,7 @@ from src.core.dtos.base_dto import BaseDTO
 
 class DocChunkDTO(BaseDTO):
     """
-    Model DTO reprezentujący fragment dokumentu.
+    DTO reprezentujące fragment dokumentu.
 
     :param id: Identyfikator fragmentu
     :param doc_id: Identyfikator dokumentu, do którego należy fragment
@@ -23,7 +30,10 @@ class DocChunkDTO(BaseDTO):
 class DocDTO(BaseDTO):
     """
     Klasa bazowa DTO dokumentu.
-    Zawiera pola wspólne dla wszystkich DTO.
+    
+    Zawiera pola wspólne dla wszystkich DTO dokumentów.
+    
+    :param title: Tytuł dokumentu
     """
     model_config = ConfigDict(from_attributes=True)
     title: str
@@ -31,7 +41,7 @@ class DocDTO(BaseDTO):
 
 class DocProcessedDTO(DocDTO):
     """
-    Klasa DTO dokumentu, która przechowuje dane uzyskiwane po zapisaniu w bazie danych.
+    DTO dokumentu po zapisaniu w bazie danych.
 
     :param id: Identyfikator dokumentu
     :param summary: Podsumowanie dokumentu (generowane przez LLM)

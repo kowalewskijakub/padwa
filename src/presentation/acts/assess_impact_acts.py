@@ -1,3 +1,9 @@
+"""
+Moduł oceny wpływu zmian w aktach prawnych.
+
+Umożliwia użytkownikowi analizę wpływu zmian między wersjami aktów prawnych
+na dokumentację wewnętrzną organizacji.
+"""
 from collections import defaultdict
 
 import streamlit as st
@@ -13,7 +19,11 @@ change_type_map = {
 
 def render_assess_impact_acts():
     """
-    Renderuje interfejs do oceny wpływu zmian w aktach prawnych.
+    Renderuje interfejs do oceny wpływu zmian w aktach prawnych na dokumentację.
+
+    Umożliwia wybór dwóch wersji aktu prawnego (wcześniejszej i późniejszej),
+    następnie wykonuje analizę wpływu wykrytych zmian na fragmenty dokumentów
+    organizacyjnych przechowywanych w systemie.
     """
     all_acts = get_state().acts_service.get_all()
     if not all_acts:
@@ -58,10 +68,14 @@ def render_assess_impact_acts():
 
 def render_impact_analyses(analyses, min_relevancy=0):
     """
-    Renderuje analizy wpływu zmian w aktach prawnych na fragmenty dokumentów.
+    Renderuje wyniki analizy wpływu zmian w aktach prawnych na dokumentację.
 
-    :param analyses: Lista analiz wpływu
-    :param min_relevancy: Minimalna istotność fragmentu dokumentu do wyświetlenia
+    Prezentuje fragmenty dokumentów, które mogą być dotknięte zmianami w aktach
+    prawnych, wraz z oceną istotności wpływu i uzasadnieniem. Fragmenty są
+    grupowane według dokumentu i sortowane według średniej istotności.
+
+    :param analyses: Lista obiektów DTO zawierających analizy wpływu zmian
+    :param min_relevancy: Minimalna wartość istotności fragmentu do wyświetlenia (0-1)
     """
 
     doc_impacts = defaultdict(list)

@@ -1,4 +1,9 @@
-# wersja: chet-theia
+"""Moduł konfiguracji połączenia z bazą danych.
+
+Zawiera klasę DatabaseConfig służącą do zarządzania parametrami połączenia
+z bazą danych Supabase i generowania connection string.
+"""
+
 import os
 from dataclasses import dataclass
 
@@ -9,8 +14,13 @@ load_dotenv()
 
 @dataclass
 class DatabaseConfig:
-    """
-    Konfiguracja połączenia do bazy danych Supabase.
+    """Konfiguracja połączenia do bazy danych Supabase.
+    
+    :param host: Adres hosta bazy danych
+    :param user: Nazwa użytkownika
+    :param password: Hasło użytkownika
+    :param database: Nazwa bazy danych
+    :param port: Port połączenia
     """
     host: str
     user: str
@@ -20,18 +30,15 @@ class DatabaseConfig:
 
     @property
     def connection_url(self) -> str:
-        """
-        Generuje URL połączenia do bazy danych.
+        """Generuje URL połączenia do bazy danych.
 
         :return: Connection string dla SQLAlchemy
         """
-        # DATABASE_URL =
         return f"postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}?sslmode=require"
 
     @classmethod
     def from_env(cls) -> 'DatabaseConfig':
-        """
-        Tworzy instancję konfiguracji ze zmiennych środowiskowych.
+        """Tworzy instancję konfiguracji ze zmiennych środowiskowych.
 
         Wymagane zmienne środowiskowe:
         - SUPABASE_HOST: Host bazy danych
@@ -41,7 +48,7 @@ class DatabaseConfig:
         - SUPABASE_PORT: Port
 
         :return: Instancja DatabaseConfig
-        :raises ValueError: Gdy, brakuje wymaganych zmiennych środowiskowych
+        :raises ValueError: Gdy brakuje wymaganych zmiennych środowiskowych
         """
         env_vars = {
             "host": "SUPABASE_HOST",
@@ -51,12 +58,10 @@ class DatabaseConfig:
             "port": "SUPABASE_PORT"
         }
 
-        # Sprawdź, czy wszystkie wymagane zmienne są ustawione
         values = {field: os.getenv(env_name) for field, env_name in env_vars.items()}
         missing = [env_name for field, env_name in env_vars.items() if not values[field]]
         if missing:
             raise ValueError(f"Wymagane zmienne środowiskowe dla połączenia z bazą danych "
                              f"nie zostały określone ({', '.join(missing)}).")
 
-        # Stwórz instancję z pobranymi wartościami
         return cls(**values)

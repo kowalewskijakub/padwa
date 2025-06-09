@@ -1,3 +1,9 @@
+"""
+Moduł przeglądania aktów prawnych.
+
+Umożliwia użytkownikowi przeglądanie listy obserwowanych aktów prawnych,
+filtrowanie ich oraz zarządzanie nimi (podgląd szczegółów, teksty jednolite, archiwizacja).
+"""
 import streamlit as st
 
 from src.core.dtos.act_dto import ActProcessedDTO
@@ -8,23 +14,24 @@ def render_act_card(act: ActProcessedDTO) -> None:
     """
     Wyświetla kartę z podstawowymi informacjami o akcie prawnym.
 
-    :param act: Obiekt DTO z danymi aktu prawnego bez referencji
+    Renderuje kontener z tytułem aktu, metadanymi (wydawca, rok, pozycja, status),
+    podsumowaniem (skróconym jeśli za długe) oraz przyciskami akcji umożliwiającymi
+    podgląd szczegółów, dostęp do tekstów jednolitych i archiwizację.
+
+    :param act: Obiekt DTO zawierający dane przetworzonego aktu prawnego
     """
     with st.container(border=True):
-        # Tytuł i podstawowe metadane
         st.markdown(f"**{act.title}**")
 
         st.caption(f"{act.publisher} {act.year} poz. {act.position} | "
                    f"{act.status}")
 
-        # Podsumowanie (skrócone, jeśli za długie)
         if act.summary:
             max_summary_length = 300
             if len(act.summary) > max_summary_length:
                 display_summary = act.summary[:max_summary_length] + "..."
             st.markdown(display_summary)
 
-        # Przyciski akcji
         col_details, col_consolidation, col_delete = st.columns(3)
 
         with col_details:
@@ -65,12 +72,13 @@ def render_act_card(act: ActProcessedDTO) -> None:
 @st.dialog("Szczegóły aktu prawnego")
 def render_act_details(act: ActProcessedDTO) -> None:
     """
-    Wyświetla dialog ze szczegółami aktu prawnego.
+    Wyświetla dialog ze szczegółowymi informacjami o akcie prawnym.
 
-    Pokazuje użytkownikowi podstawowe statystyki (np. ilość wyodrębnionych fragmentów) oraz
-    ich treść.
+    Prezentuje kompletne dane aktu w formie dialogu, w tym metadane,
+    statystyki (liczbę fragmentów, ocenę wstępną, status), pełne podsumowanie
+    oraz treść wszystkich wyodrębnionych fragmentów tekstu.
 
-    :param act: Obiekt DTO z danymi aktu prawnego bez referencji
+    :param act: Obiekt DTO zawierający dane przetworzonego aktu prawnego
     """
     st.header(act.title)
     st.caption(f"{act.publisher} {act.year} poz. {act.position} | "
@@ -78,7 +86,6 @@ def render_act_details(act: ActProcessedDTO) -> None:
 
     chunks = get_state().acts_service.get_chunks_for_act(act.id)
 
-    # Kolumny z metrykami
     col_count, col_flag, col_status = st.columns(3)
 
     with col_count:
@@ -91,12 +98,10 @@ def render_act_details(act: ActProcessedDTO) -> None:
     with col_status:
         st.metric("Status", act.status)
 
-    # Podsumowanie
     if act.summary:
         st.subheader("Podsumowanie")
         st.info(act.summary)
 
-    # Fragmenty
     st.subheader("Fragmenty")
     for i, chunk in enumerate(chunks):
         with st.expander(f"Fragment nr {i + 1}", expanded=True):
@@ -106,9 +111,13 @@ def render_act_details(act: ActProcessedDTO) -> None:
 @st.dialog("Teksty jednolite")
 def render_consolidation_acts(act: ActProcessedDTO):
     """
-    Renderuje dialog z tekstami jednolitymi dla aktu.
+    Renderuje dialog z dostępnymi tekstami jednolitymi dla danego aktu prawnego.
 
-    :param act: Obiekt DTO z danymi aktu prawnego
+    Wyświetla listę tekstów jednolitych powiązanych z aktem, umożliwiając
+    użytkownikowi ich przeglądanie oraz dodawanie do obserwowanych lub
+    archiwizowanie w zależności od statusu przetworzenia.
+
+    :param act: Obiekt DTO zawierający dane aktu prawnego
     """
     st.header(f"{act.title}")
     with st.spinner("Wczytywanie dostępnych tekstów jednolitych..."):
@@ -124,7 +133,6 @@ def render_consolidation_acts(act: ActProcessedDTO):
                     st.caption(f"{cons_act.publisher} {cons_act.year} poz. {cons_act.position} | "
                                f"{cons_act.status}")
 
-                    # Przyciski akcji – zależnie od tego, czy akt jest zapisany w DB
                     if cons_act.is_processed:
                         archive_button = st.button(
                             "Archiwizuj",
@@ -137,7 +145,6 @@ def render_consolidation_acts(act: ActProcessedDTO):
                             else:
                                 st.error("Nie udało się zarchiwizować aktu.")
                     else:
-                        # Akt niezapisany w DB
                         observe_button = st.button(
                             "Obserwuj",
                             key=f"cons_observe_{cons_act.publisher}_{cons_act.year}_{cons_act.position}",
@@ -159,17 +166,14 @@ def render_consolidation_acts(act: ActProcessedDTO):
 
 st.header("Obserwowane akty prawne")
 
-# Pobierz wszystkie akty
 basic_acts = get_state().acts_service.get_all_base()
 
-# Stwórz listę dostępnych lat
 years = sorted(set(str(act.year) for act in basic_acts))
 years.insert(0, "Wszystkie")
 
 if not basic_acts:
     st.info("Nie obserwujesz jeszcze żadnych aktów prawnych.")
 else:
-    # Kontrolki filtrów
     with st.container():
         col_year, col_search = st.columns([1, 3])
 

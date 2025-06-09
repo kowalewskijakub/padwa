@@ -1,4 +1,10 @@
-# wersja: chet-theia
+"""
+Moduł DTO dla statystyk.
+
+Zawiera klasy Data Transfer Object używane do transferu
+danych statystycznych między warstwami aplikacji.
+"""
+
 from dataclasses import field
 from typing import Dict
 
@@ -8,13 +14,14 @@ from src.core.dtos.base_dto import BaseDTO
 class StatisticsDTO(BaseDTO):
     """
     Klasa bazowa DTO statystyk.
+    
     Zawiera pola wspólne dla wszystkich DTO statystyk.
     """
 
 
 class RelevancyStatisticsDTO(StatisticsDTO):
     """
-    Model reprezentujący statystyki relewancji dokumentów.
+    DTO statystyk relewancji dokumentów.
 
     :param average: Średnia ocena relewancji
     :param minimum: Minimalna ocena relewancji
@@ -27,12 +34,12 @@ class RelevancyStatisticsDTO(StatisticsDTO):
 
 class ActStatisticsDTO(StatisticsDTO):
     """
-    Model reprezentujący statystyki aktów prawnych.
+    DTO statystyk aktów prawnych.
 
     :param total_acts: Całkowita liczba aktów
+    :param total_acts_by_year: Słownik liczby aktów według roku
     :param total_chunks: Całkowita liczba fragmentów
     :param avg_chunks_per_act: Średnia liczba fragmentów na akt
-    :param by_year: Słownik liczby aktów według roku
     """
     total_acts: int
     total_acts_by_year: Dict[int, int] = field(default_factory=dict)
@@ -42,7 +49,7 @@ class ActStatisticsDTO(StatisticsDTO):
 
 class DocumentStatisticsDTO(StatisticsDTO):
     """
-    Model reprezentujący statystyki dokumentów.
+    DTO statystyk dokumentów.
 
     :param total_documents: Całkowita liczba dokumentów
     :param total_chunks: Całkowita liczba fragmentów

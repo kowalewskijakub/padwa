@@ -20,6 +20,7 @@ class BaseRepository(ABC, Generic[TORM, TDomain]):
 
     Dostarcza podstawowe metody i strukturę dla repozytoriów, które zarządzają
     encjami w bazie danych i automatycznie konwertują je na modele domenowe.
+    Wykorzystuje wzorzec Generic do typowania z TORM (typ ORM) i TDomain (typ domenowy).
     """
 
     def __init__(self, db_manager: DatabaseManager, orm_class: Type[TORM], domain_class: Type[TDomain]):
@@ -39,7 +40,8 @@ class BaseRepository(ABC, Generic[TORM, TDomain]):
         Konwertuje obiekt ORM na model domenowy.
 
         :param orm_obj: Obiekt ORM do konwersji
-        :return: Model domenowy lub None, jeśli orm_obj to None
+        :return: Model domenowy
+        :raises ValidationError: Gdy konwersja nie powiedzie się
         """
         return self.domain_class.model_validate(orm_obj)
 
@@ -57,7 +59,8 @@ class BaseRepository(ABC, Generic[TORM, TDomain]):
         Konwertuje obiekt domenowy na model ORM.
 
         :param domain_obj: Obiekt domenowy do konwersji
-        :return: Model ORM lub None, jeśli domain_obj to None
+        :return: Model ORM
+        :raises ValidationError: Gdy konwersja nie powiedzie się
         """
         return self.orm_class.model_validate(domain_obj)
 
@@ -202,8 +205,8 @@ class BaseRepository(ABC, Generic[TORM, TDomain]):
 
         :param model: Model domenowy z zaktualizowanymi wartościami
         :return: Model domenowy zaktualizowanej encji
-        :raises EntityNotFoundError: Gdy, encja o podanym ID nie istnieje
-        :raises ValueError: Gdy, model nie ma atrybutu 'id'
+        :raises EntityNotFoundError: Gdy encja o podanym ID nie istnieje
+        :raises ValueError: Gdy model nie ma atrybutu 'id'
         """
         if not hasattr(model, 'id') or model.id is None:
             raise ValueError("Model musi zawierać atrybut 'id' z poprawną wartością")

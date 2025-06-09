@@ -12,10 +12,11 @@ _logger = get_logger()
 
 class EmbeddingHandler:
     """
-    Klasa do obsługi embeddingów dla fragmentów tekstu.
+    Serwis do obsługi embeddingów dla fragmentów tekstu.
 
-    Używa LangChain z OpenAI do generowania embeddingów i pgvector do
-    operacji na wektorach w PostgreSQL.
+    Używa LangChain z OpenAI do generowania embeddingów wektorowych.
+    Zapewnia funkcjonalności generowania pojedynczych embeddingów
+    oraz przetwarzania wsadowego dla większej wydajności.
     """
 
     def __init__(
@@ -54,8 +55,8 @@ class EmbeddingHandler:
         Generuje embeddingi dla listy tekstów.
 
         :param texts_dict: Słownik zawierający ID fragmentu jako klucz i jego tekst jako wartość
-        :return: Lista wektorów embeddingów
-        :raises EmbeddingError: Gdy, nie udało się wygenerować embeddingów
+        :return: Słownik mapujący ID fragmentów na ich wektory embeddingów
+        :raises EmbeddingError: Gdy nie udało się wygenerować embeddingów
         """
         try:
             # Konwersja słownika na listy, zachowując mapowanie ID -> tekst

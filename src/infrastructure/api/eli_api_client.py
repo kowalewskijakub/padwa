@@ -1,4 +1,9 @@
-# wersja: chet-theia
+"""Moduł klienta API dla European Legislation Identifier (ELI).
+
+Zawiera implementację klienta do komunikacji z API ELI
+służącego do pobierania danych o aktach prawnych.
+"""
+
 from datetime import date
 from typing import List, Optional, Dict, Tuple
 
@@ -83,22 +88,19 @@ class ELIApiClient(BaseApiClient[ActApiDTO]):
         return statuses
 
     def get_act(self, publisher: str, year: int, position: int) -> Optional[ActApiDTO]:
-        """
-        Pobiera informacje o konkretnym akcie wraz z referencjami.
+        """Pobiera informacje o konkretnym akcie wraz z referencjami.
 
         :param publisher: Kod wydawcy (np. 'DU')
         :param year: Rok publikacji
         :param position: Pozycja w publikacji
         :return: Obiekt ActApiDTO, jeśli znaleziono, None w przeciwnym razie
+        :raises requests.RequestException: Gdy żądanie się nie powiedzie
         """
-        # Pobierz podstawowe dane aktu
         response = self._make_request(f"acts/{publisher}/{year}/{position}")
         act_data = response.json()
 
-        # Przetwórz podstawowy obiekt ActApiDTO
         act_dto = ActApiDTO.model_validate(act_data)
 
-        # Przetwórz referencje, jeśli są dostępne
         if "references" in act_data:
             references = act_data["references"]
             act_dto.changing_acts = self._parse_changing_acts(references)
@@ -107,18 +109,19 @@ class ELIApiClient(BaseApiClient[ActApiDTO]):
         return act_dto
 
     def get_act_pdf(self, publisher: str, year: int, position: int) -> Optional[bytes]:
-        """
-        Pobiera zawartość PDF konkretnego aktu. Jeżeli istnieje tekst w wersji L to preferuje go ponad wynik
-        zapytania do /text.pdf.
+        """Pobiera zawartość PDF konkretnego aktu.
+        
+        Jeżeli istnieje tekst w wersji L to preferuje go ponad wynik zapytania do /text.pdf.
 
         :param publisher: Kod wydawcy (np. 'DU')
         :param year: Rok publikacji
         :param position: Pozycja w publikacji
         :return: Zawartość PDF jako bajty, jeśli znaleziono, None w przeciwnym razie
+        :raises requests.RequestException: Gdy żądanie się nie powiedzie
         """
 
         if publisher == "DU":
-            position_filled = str(position).zfill(4)  # Pozycja wypełniona zerami do 4 cyfr
+            position_filled = str(position).zfill(4)
             l_text = self._make_request(f"acts/{publisher}/{year}/{position}/text/T/D{year}{position_filled}L.pdf")
             if l_text.status_code == 200:
                 return l_text.content
@@ -133,14 +136,14 @@ class ELIApiClient(BaseApiClient[ActApiDTO]):
             position: int,
             min_date: Optional[date] = None
     ) -> List[ActApiDTO]:
-        """
-        Pobiera listę tekstów jednolitych dla danego aktu.
+        """Pobiera listę tekstów jednolitych dla danego aktu.
 
         :param publisher: Kod wydawcy (np. 'DU')
         :param year: Rok publikacji
         :param position: Pozycja w publikacji
         :param min_date: Opcjonalna minimalna data zmian
         :return: Lista obiektów ActApiDTO reprezentujących akty skonsolidowane
+        :raises requests.RequestException: Gdy żądanie się nie powiedzie
         """
         response = self._make_request(f"acts/{publisher}/{year}/{position}/references")
         references = response.json()
@@ -151,7 +154,6 @@ class ELIApiClient(BaseApiClient[ActApiDTO]):
             for item in references["Inf. o tekście jednolitym"]:
                 act_data = item.get("act", {})
 
-                # Filtruj według daty, jeśli została ona określona
                 if min_date and item.get("date") and date.fromisoformat(item.get("date")) < min_date:
                     continue
 
@@ -160,13 +162,12 @@ class ELIApiClient(BaseApiClient[ActApiDTO]):
         return consolidation_acts
 
     def get_acts_by_title(self, query: str, limit: int = 200) -> List[ActApiDTO]:
-        """
-        Wyszukuje akty prawne na podstawie zapytania tekstowego.
+        """Wyszukuje akty prawne na podstawie zapytania tekstowego.
 
         :param query: Tekst wyszukiwania (fragment tytułu)
         :param limit: Maksymalna liczba zwracanych wyników
         :return: Lista obiektów ActApiDTO reprezentujących znalezione akty
-        :raises APIError: Gdy żądanie wyszukiwania nie powiedzie się
+        :raises requests.RequestException: Gdy żądanie wyszukiwania nie powiedzie się
         """
         response = self._make_request(
             "acts/search",
@@ -177,8 +178,7 @@ class ELIApiClient(BaseApiClient[ActApiDTO]):
         acts = []
         for act_data in acts_data:
             act = ActApiDTO.model_validate(act_data)
-            # Przetwórz referencje, jeśli są dostępne
-            if "references" in act_data:
+                if "references" in act_data:
                 references = act_data["references"]
                 act.changing_acts = self._parse_changing_acts(references)
                 act.changed_acts = self._parse_changed_acts(references)

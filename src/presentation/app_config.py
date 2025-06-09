@@ -1,10 +1,22 @@
+"""
+Moduł konfiguracji aplikacji.
+
+Zawiera klasę AppConfig odpowiedzialną za wczytywanie i przechowywanie
+parametrów konfiguracyjnych aplikacji z pliku JSON.
+"""
 import json
 from dataclasses import dataclass
 from typing import Optional
-from pathlib import Path  # Make sure to import Path
+from pathlib import Path
 
 @dataclass
 class AppConfig:
+    """
+    Klasa konfiguracyjna aplikacji zawierająca wszystkie stałe systemowe.
+
+    Przechowuje parametry konfiguracyjne wczytywane z pliku JSON, takie jak
+    informacje o aplikacji, ustawienia API i modeli AI.
+    """
     copyright_author: str
     copyright_year: str
     app_name: str
@@ -18,10 +30,15 @@ class AppConfig:
     @classmethod
     def load(cls, constants_path: str = None) -> Optional['AppConfig']:
         """
-        Wczytuje stałe z pliku JSON.
+        Wczytuje konfigurację aplikacji z pliku JSON.
 
-        :param constants_path: Ścieżka do pliku JSON z danymi stałych
-        :return: Obiekt AppConstants
+        Jeśli ścieżka nie zostanie podana, automatycznie wyszukuje plik
+        app_constants.json w katalogu assets względem katalogu głównego projektu.
+
+        :param constants_path: Ścieżka do pliku JSON z konfiguracją aplikacji
+        :return: Obiekt AppConfig z wczytaną konfiguracją lub None w przypadku błędu
+        :raises FileNotFoundError: Gdy plik konfiguracyjny nie istnieje
+        :raises json.JSONDecodeError: Gdy plik JSON ma nieprawidłową składnię
         """
         if constants_path is None:
             project_root = Path(__file__).parent.parent.parent

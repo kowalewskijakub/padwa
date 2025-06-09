@@ -1,3 +1,9 @@
+"""
+Moduł przeglądania dokumentów.
+
+Umożliwia użytkownikowi przeglądanie listy obserwowanych dokumentów,
+filtrowanie ich oraz zarządzanie nimi (podgląd szczegółów, archiwizacja).
+"""
 import streamlit as st
 
 from src.core.dtos.doc_dto import DocProcessedDTO
@@ -8,13 +14,14 @@ def render_doc_card(doc: DocProcessedDTO) -> None:
     """
     Wyświetla kartę z podstawowymi informacjami o dokumencie.
 
-    :param doc: Obiekt DTO z danymi dokumentu
+    Renderuje kontener z tytułem dokumentu, podsumowaniem (skróconym jeśli za długie)
+    oraz przyciskami akcji umożliwiającymi podgląd szczegółów i archiwizację.
+
+    :param doc: Obiekt DTO zawierający dane przetworzonego dokumentu
     """
     with st.container(border=True):
-        # Tytuł
         st.markdown(f"**{doc.title}**")
 
-        # Podsumowanie (skrócone, jeśli za długie)
         if doc.summary:
             max_summary_length = 300
             if len(doc.summary) > max_summary_length:
@@ -23,7 +30,6 @@ def render_doc_card(doc: DocProcessedDTO) -> None:
             else:
                 st.markdown(doc.summary)
 
-        # Przyciski akcji
         col_details, col_delete = st.columns(2)
 
         with col_details:
@@ -54,18 +60,18 @@ def render_doc_card(doc: DocProcessedDTO) -> None:
 @st.dialog("Szczegóły dokumentu")
 def render_doc_details(doc: DocProcessedDTO) -> None:
     """
-    Wyświetla dialog ze szczegółami dokumentu.
+    Wyświetla dialog ze szczegółymi informacjami o dokumencie.
 
-    Pokazuje użytkownikowi podstawowe statystyki (np. ilość wyodrębnionych fragmentów) oraz
-    ich treść.
+    Prezentuje kompletne dane dokumentu w formie dialogu, w tym statystyki
+    (liczbę fragmentów, ocenę wstępną), pełne podsumowanie oraz treść
+    wszystkich wyodrębnionych fragmentów tekstu.
 
-    :param doc: Obiekt DTO z danymi dokumentu
+    :param doc: Obiekt DTO zawierający dane przetworzonego dokumentu
     """
     st.header(doc.title)
 
     chunks = get_state().docs_service.get_chunks_for_doc(doc.id)
 
-    # Kolumny z metrykami
     col_count, col_flag = st.columns(2)
 
     with col_count:
@@ -75,12 +81,10 @@ def render_doc_details(doc: DocProcessedDTO) -> None:
         relevancy_status = "nieistotny" if doc.flag else "istotny"
         st.metric("Ocena wstępna", relevancy_status)
 
-    # Podsumowanie
     if doc.summary:
         st.subheader("Podsumowanie")
         st.info(doc.summary)
 
-    # Fragmenty
     st.subheader("Fragmenty")
     for i, chunk in enumerate(chunks):
         with st.expander(f"Fragment nr {i + 1}", expanded=True):
@@ -89,13 +93,11 @@ def render_doc_details(doc: DocProcessedDTO) -> None:
 
 st.header("Dokumentacja prawna")
 
-# Pobierz wszystkie dokumenty
 all_docs = get_state().docs_service.get_all()
 
 if not all_docs:
     st.info("Nie znaleziono żadnych obserwowanych dokumentów.")
 else:
-    # Kontrolki filtrów
     with st.container():
         title_search = st.text_input(
             "Tytuł"

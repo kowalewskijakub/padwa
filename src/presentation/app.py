@@ -1,4 +1,9 @@
-# wersja: chet-theia
+"""
+Główny moduł aplikacji Streamlit do zarządzania aktami prawnymi i dokumentacją.
+
+Ten moduł zawiera główną logikę aplikacji webowej, konfigurację stron
+oraz renderowanie strony głównej z podstawowymi statystykami.
+"""
 import sys
 from pathlib import Path
 
@@ -18,10 +23,13 @@ _config = AppConfig.load()
 
 def render_home_page(act_statistics: ActStatisticsDTO, doc_statistics: DocumentStatisticsDTO):
     """
-    Wyświetla stronę główną ze statystykami.
+    Wyświetla stronę główną ze statystykami aktów prawnych i dokumentów.
 
-    :param act_statistics: Statystyki aktów prawnych
-    :param doc_statistics: Statystyki dokumentów
+    Renderuje dashboard z metrykami podstawowymi oraz wykresami przedstawiającymi
+    rozkład aktów prawnych według roku i chmurę słów z dokumentacji wewnętrznej.
+
+    :param act_statistics: Obiekt DTO zawierający statystyki aktów prawnych
+    :param doc_statistics: Obiekt DTO zawierający statystyki dokumentów
     """
     st.markdown(
         f"""
@@ -45,7 +53,6 @@ def render_home_page(act_statistics: ActStatisticsDTO, doc_statistics: DocumentS
                 doc_statistics.total_documents
             )
 
-        # Szczegółowe statystyki
         col1, col2 = st.columns(2)
 
         with col1:
@@ -53,7 +60,6 @@ def render_home_page(act_statistics: ActStatisticsDTO, doc_statistics: DocumentS
                 st.subheader("Akty prawne")
                 st.markdown(f"**Średnia wielkość:**\t{act_statistics.avg_chunks_per_act} fragmentów")
 
-                # Akty według roku
                 if act_statistics.total_acts_by_year:
                     years = list(act_statistics.total_acts_by_year.keys())
                     counts = list(act_statistics.total_acts_by_year.values())
@@ -93,8 +99,7 @@ st.set_page_config(
 initialized = initialize_state()
 if initialized:
 
-    # get_state().db_manager.initialize_database() # Inicjalizuję DB
-    get_state().dictionaries_service.sync_dictionaries()  # Aktualizuje słowniki
+    get_state().dictionaries_service.sync_dictionaries()
 
     st.html('<style>' + open('assets/styles.css').read() + '</style>')
 
@@ -124,7 +129,6 @@ if initialized:
 else:
     st.error("Platforma jest tymczasowo niedostępna. Proszę spróbować ponownie później.")
 
-# Wyświetla stopkę
 st.caption(
     f"""
     {_config.app_name} ({_config.app_acronym}) v. {_config.app_version} –

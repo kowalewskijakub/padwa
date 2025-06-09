@@ -1,4 +1,9 @@
-# wersja: chet-theia
+"""Moduł z bazową klasą klienta API.
+
+Zawiera abstrakcyjną klasę BaseApiClient służącą jako podstawa
+dla wszystkich klientów API w aplikacji.
+"""
+
 from abc import ABC
 from typing import TypeVar, Generic, Dict, Any, Optional
 
@@ -10,16 +15,14 @@ TBaseDTO = TypeVar('TBaseDTO', bound=BaseDTO)
 
 
 class BaseApiClient(Generic[TBaseDTO], ABC):
-    """
-    Abstrakcyjna klasa bazowa dla klientów API.
+    """Abstrakcyjna klasa bazowa dla klientów API.
 
     Dostarcza podstawowe metody i strukturę dla klientów API, które pobierają i przetwarzają
     dane z zewnętrznych źródeł poprzez HTTP.
     """
 
     def __init__(self, base_url: str):
-        """
-        Inicjalizuje klienta API.
+        """Inicjalizuje klienta API.
 
         :param base_url: Bazowy URL dla obsługiwanego API
         """
@@ -35,8 +38,7 @@ class BaseApiClient(Generic[TBaseDTO], ABC):
             headers: Optional[Dict[str, Any]] = None,
             timeout: int = 30
     ) -> requests.Response:
-        """
-        Wykonuje żądanie do API.
+        """Wykonuje żądanie do API.
 
         :param endpoint: Endpoint API do zapytania
         :param method: Metoda HTTP (GET, POST, PUT, DELETE)
@@ -45,6 +47,7 @@ class BaseApiClient(Generic[TBaseDTO], ABC):
         :param headers: Nagłówki żądania HTTP
         :param timeout: Limit czasu oczekiwania na odpowiedź w sekundach
         :return: Odpowiedź API
+        :raises requests.RequestException: Gdy żądanie się nie powiedzie
         """
         url = f"{self.base_url}/{endpoint}"
 

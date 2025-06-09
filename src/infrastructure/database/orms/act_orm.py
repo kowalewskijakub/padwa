@@ -1,3 +1,9 @@
+"""Moduł modeli ORM dla aktów prawnych.
+
+Zawiera modele dla aktów prawnych, ich typów, statusów, fragmentów,
+klastery oraz analizy zmian.
+"""
+
 from typing import List, Optional, Any
 
 from pgvector.sqlalchemy import Vector
@@ -12,22 +18,23 @@ _config = AppConfig.load()
 
 
 class ActType(DictionaryBase, table=True):
-    """
-    Model reprezentujący typy aktów prawnych.
+    """Model reprezentujący typy aktów prawnych.
+    
+    :param acts: Relacja do aktów prawnych tego typu
     """
     acts: Mapped[List["Act"]] = Relationship(back_populates="type_obj")
 
 
 class ActStatus(DictionaryBase, table=True):
-    """
-    Model reprezentujący status aktów prawnych.
+    """Model reprezentujący status aktów prawnych.
+    
+    :param acts: Relacja do aktów prawnych o tym statusie
     """
     acts: Mapped[List["Act"]] = Relationship(back_populates="status_obj")
 
 
 class ActChangeLink(SQLModel, table=True):
-    """
-    Model reprezentujący relację zmiany między aktami prawnymi.
+    """Model reprezentujący relację zmiany między aktami prawnymi.
 
     Przechowuje informację o tym, który akt zmienia który. Jeden akt może zmieniać
     wiele aktów i jeden akt może być zmieniany przez wiele aktów.
@@ -40,6 +47,17 @@ class ActChangeLink(SQLModel, table=True):
 
 
 class ActChangeAnalysis(SQLModel, table=True):
+    """Model reprezentujący analizę zmian między fragmentami aktów prawnych.
+    
+    :param id: Unikalny identyfikator analizy
+    :param changing_act_id: ID aktu zmieniającego
+    :param changed_act_id: ID aktu zmienianego
+    :param changing_chunk_id: ID fragmentu aktu zmieniającego
+    :param changed_chunk_id: ID fragmentu aktu zmienianego
+    :param change_type: Typ zmiany ('modified', 'appended', 'removed')
+    :param relevancy: Ocena relewatnoci zmiany
+    :param justification: Uzasadnienie oceny
+    """
     id: Optional[int] = Field(default=None, primary_key=True)
     changing_act_id: int = Field(foreign_key="act.id")
     changed_act_id: int = Field(foreign_key="act.id")
@@ -51,6 +69,16 @@ class ActChangeAnalysis(SQLModel, table=True):
 
 
 class ActChangeImpactAnalysis(SQLModel, table=True):
+    """Model reprezentujący analizę wpływu zmian na dokumenty.
+    
+    :param id: Unikalny identyfikator analizy wpływu
+    :param changing_act_id: ID aktu zmieniającego
+    :param changed_act_id: ID aktu zmienianego
+    :param change_analysis_id: ID analizy zmiany
+    :param doc_chunk_id: ID fragmentu dokumentu
+    :param relevancy: Ocena relewatnoci wpływu
+    :param justification: Uzasadnienie oceny wpływu
+    """
     id: Optional[int] = Field(default=None, primary_key=True)
     changing_act_id: int = Field(foreign_key="act.id")
     changed_act_id: int = Field(foreign_key="act.id")
@@ -77,7 +105,6 @@ class Act(Base, table=True):
     :param flag: Flaga aktu
     :param archived: Czy akt jest zarchiwizowany
     """
-    # Pola podstawowe
     publisher: str
     year: int
     position: int
@@ -94,15 +121,13 @@ class Act(Base, table=True):
         sa_relationship_kwargs={"lazy": "joined"}  # Wczytuje obiekt w jednym zapytaniu
     )
 
-    # Pola generowane w wyniku przetworzenia
     summary: Optional[str] = None
     flag: Optional[bool] = None
     archived: Optional[bool] = None
 
     @property
     def type(self) -> Optional[str]:
-        """
-        Zwraca tytuł typu aktu prawnego.
+        """Zwraca tytuł typu aktu prawnego.
 
         :return: Tytuł typu aktu lub None, jeśli relacja nie jest załadowana
         """
@@ -110,8 +135,7 @@ class Act(Base, table=True):
 
     @property
     def status(self) -> Optional[str]:
-        """
-        Zwraca tytuł statusu aktu prawnego.
+        """Zwraca tytuł statusu aktu prawnego.
 
         :return: Tytuł statusu aktu lub None, jeśli relacja nie jest załadowana
         """
@@ -119,16 +143,20 @@ class Act(Base, table=True):
 
 
 class ActChunkClusterLink(SQLModel, table=True):
-    """
-    Model łączący klastry z fragmentami aktów (tabela pośrednia wielu-do-wielu).
+    """Model łączący klastry z fragmentami aktów (tabela pośrednia wielu-do-wielu).
+    
+    :param chunk_id: ID fragmentu aktu
+    :param cluster_id: ID klastra
     """
     chunk_id: int = Field(foreign_key="actchunk.id", primary_key=True)
     cluster_id: int = Field(foreign_key="actchunkcluster.id", primary_key=True)
 
 
 class ActChunk(ChunkBase, table=True):
-    """
-    Model reprezentujący fragmenty aktów prawnych.
+    """Model reprezentujący fragmenty aktów prawnych.
+    
+    :param reference_id: Identyfikator aktu (mapowany jako act_id)
+    :param _clusters: Relacja do klastrów fragmentów
     """
     reference_id: int = Field(
         sa_column=Column("act_id", Integer, ForeignKey("act.id"))
@@ -149,21 +177,18 @@ class ActChunkCluster(ChunkClusterBase, table=True):
     :param flag: Flaga wskazująca na nieistotność klastra
     """
 
-    # Workaround dla aliasu ze względu na problem z biblioteką SQLModel (issue #725)
     reference_id: int = Field(
         sa_column=Column("act_id", Integer, ForeignKey("act.id"))
     )
     parent_cluster_id: Optional[int] = Field(default=None, foreign_key="actchunkcluster.id")
     level: int = Field(default=0)
 
-    # Pola generowane w wyniku przetworzenia
     text: Optional[str] = Field(sa_column=Column("summary", String, default=None))
     embedding: Optional[Any] = Field(
         sa_column=Column("summary_embedding", Vector(_config.embedding_vector_size), default=None)
     )
     flag: Optional[bool] = False
 
-    # Relacje
     parent_cluster: Optional["ActChunkCluster"] = Relationship(
         back_populates="child_clusters",
         sa_relationship_kwargs={"remote_side": "ActChunkCluster.id"}
@@ -173,7 +198,6 @@ class ActChunkCluster(ChunkClusterBase, table=True):
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
 
-    # Relacja many-to-many z fragmentami aktów
     _chunks: Optional[List["ActChunk"]] = Relationship(
         back_populates="_clusters",
         link_model=ActChunkClusterLink

@@ -1,3 +1,9 @@
+"""
+Moduł dodawania dokumentów.
+
+Umożliwia użytkownikowi przesyłanie dokumentów PDF do systemu
+w celu ich przetworzenia i analizy.
+"""
 import streamlit as st
 
 from src.presentation.app_state import get_state
@@ -5,7 +11,11 @@ from src.presentation.app_state import get_state
 
 def render_document_uploader():
     """
-    Renderuje formularz do przesyłania nowego dokumentu.
+    Renderuje formularz do przesyłania nowego dokumentu PDF.
+
+    Wyświetla interfejs umożliwiający użytkownikowi wybór pliku PDF
+    i jego przesłanie do systemu w celu przetworzenia. Po przesłaniu
+    dokument jest analizowany i zapisywany w bazie danych.
     """
     with st.form("upload_document_form"):
         uploaded_file = st.file_uploader(
