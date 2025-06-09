@@ -64,8 +64,8 @@ def initialize_state() -> bool:
         state.act_change_impact_service = container.act_change_impact_service()
 
         # Inicjalizacja bazy danych
-        # db_manager = container.db_manager()
-        # db_manager.initialize_database()
+        db_manager = container.db_manager()
+        db_manager.initialize_database()
 
         state.initialized = True
         return True

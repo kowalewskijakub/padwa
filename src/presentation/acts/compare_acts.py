@@ -67,7 +67,7 @@ def render_act_comparison():
         st.info("Kliknij poniższy przycisk, aby przeanalizować wpływ tych zmian na dokumenty organizacyjne.")
         if st.button("Analizuj wpływ na dokumenty"):
             with st.spinner("Analizowanie wpływu..."):
-                impact_analyses = get_state().act_change_impact_service.analyze_impact(changing_act_id, base_act_id)
+                impact_analyses = get_state().act_change_impact_service.analyze_wimpact(changing_act_id, base_act_id)
                 st.session_state['impact_analyses'] = impact_analyses
 
 

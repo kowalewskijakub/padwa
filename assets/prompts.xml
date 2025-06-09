@@ -2,9 +2,9 @@
 <prompts>
     <prompt id="act-cluster-summarization">
         <template>
-            Podsumuj w 120 słowach załączony klaster fragmentów aktu prawnego lub podsumowań aktu prawnego. Proces ten
-            jest częścią rekurencyjnego systemu streszczania, gdzie na wyższych poziomach streszczasz już istniejące
-            podsumowania.
+            Podsumuj w języku polskim w 120 słowach załączony klaster fragmentów aktu prawnego lub podsumowań aktu
+            prawnego. Proces ten jest częścią rekurencyjnego systemu streszczania, gdzie na wyższych poziomach
+            streszczasz już istniejące podsumowania.
 
             ### Instrukcje
             1. **Struktura odpowiedzi:**
@@ -37,9 +37,9 @@
     </prompt>
     <prompt id="doc-summarization">
         <template>
-            Podsumuj w 120 słowach załączony dokument organizacyjny o charakterze prawnym, który może być np.
-            regulaminem, procedurą, wzorem pisma lub pozwem. Zdefiniuj tytuł dla analizowanego dokumentu oraz określ
-            właściwą flagę.
+            Podsumuj w języku polskim w 120 słowach załączony dokument organizacyjny o charakterze prawnym, który może
+            być np. regulaminem, procedurą, wzorem pisma lub pozwem. Zdefiniuj tytuł dla analizowanego dokumentu oraz
+            określ właściwą flagę.
 
             ### Instrukcje
             1. **Struktura odpowiedzi:**
@@ -52,7 +52,8 @@
             artykułem prasowym).
 
             2. **Uwagi:**
-            - Ignoruj dane osobowe, ceny lub inne nieistotne szczegóły w dokumencie – traktuj je jako przykładowe.
+            - Dokument organizacyjny jest wzorem. W związku z tym ignoruj zawarte w nim dane szczegółowe, takie jak
+            nazwy firm, dane osobowe, ceny, numery telefonów itp. Nie mów o nich w odpowiedzi.
             - Odpowiedź sformatuj zgodnie z następującą instrukcją:
             """
             {format_instructions}

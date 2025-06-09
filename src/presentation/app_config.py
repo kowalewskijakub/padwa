@@ -1,8 +1,7 @@
-# wersja: chet-theia
 import json
 from dataclasses import dataclass
 from typing import Optional
-
+from pathlib import Path  # Make sure to import Path
 
 @dataclass
 class AppConfig:
@@ -17,17 +16,20 @@ class AppConfig:
     embedding_vector_size: int
 
     @classmethod
-    def load(cls, constants_path: str = "assets/app_constants.json") -> Optional['AppConfig']:
+    def load(cls, constants_path: str = None) -> Optional['AppConfig']:
         """
         Wczytuje stałe z pliku JSON.
 
         :param constants_path: Ścieżka do pliku JSON z danymi stałych
         :return: Obiekt AppConstants
         """
+        if constants_path is None:
+            project_root = Path(__file__).parent.parent.parent
+            constants_path = project_root / "assets" / "app_constants.json"
         try:
             with open(constants_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 return cls(**data)
         except Exception as e:
-            print(f"Nie udało się wczytać stałych: {e}")
+            print(f"Nie udało się wczytać stałych z '{constants_path}': {e}")
             return None

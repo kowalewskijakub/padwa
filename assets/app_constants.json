@@ -3,7 +3,7 @@
   "copyright_year": "2025",
   "app_name": "Platforma analizy dokumentacji wewnętrznej",
   "app_acronym": "Padwa",
-  "app_version": "1.0.0",
+  "app_version": "0.1.0",
   "eli_api_base_url": "https://api.sejm.gov.pl/eli",
   "llm_model": "gemini-2.5-flash-preview-04-17",
   "embedding_model": "text-embedding-3-small",
