@@ -34,6 +34,8 @@ Spis treści
 .. toctree::
    :maxdepth: 2
    :caption: Referencja API
-   :glob:
 
-   api-reference/*
+   api-reference/src.common
+   api-reference/src.core
+   api-reference/src.infrastructure
+   api-reference/src.presentation

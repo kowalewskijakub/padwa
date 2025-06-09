@@ -162,12 +162,13 @@ class ELIApiClient(BaseApiClient[ActApiDTO]):
         return consolidation_acts
 
     def get_acts_by_title(self, query: str, limit: int = 200) -> List[ActApiDTO]:
-        """Wyszukuje akty prawne na podstawie zapytania tekstowego.
+        """
+        Wyszukuje akty prawne na podstawie zapytania tekstowego.
 
         :param query: Tekst wyszukiwania (fragment tytułu)
         :param limit: Maksymalna liczba zwracanych wyników
         :return: Lista obiektów ActApiDTO reprezentujących znalezione akty
-        :raises requests.RequestException: Gdy żądanie wyszukiwania nie powiedzie się
+        :raises APIError: Gdy żądanie wyszukiwania nie powiedzie się
         """
         response = self._make_request(
             "acts/search",
@@ -178,7 +179,8 @@ class ELIApiClient(BaseApiClient[ActApiDTO]):
         acts = []
         for act_data in acts_data:
             act = ActApiDTO.model_validate(act_data)
-                if "references" in act_data:
+            # Przetwórz referencje, jeśli są dostępne
+            if "references" in act_data:
                 references = act_data["references"]
                 act.changing_acts = self._parse_changing_acts(references)
                 act.changed_acts = self._parse_changed_acts(references)

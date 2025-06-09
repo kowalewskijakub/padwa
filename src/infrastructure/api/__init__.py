@@ -1,5 +1,5 @@
-"""ModuB zawierajcy klient�w API.
+"""Moduł zawierający klientów API.
 
 Zawiera klasy bazowe oraz specyficzne implementacje
-klient�w do komunikacji z zewntrznymi API.
+klientów do komunikacji z zewnętrznymi API.
 """

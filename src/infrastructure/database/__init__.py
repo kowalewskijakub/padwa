@@ -1,5 +1,5 @@
-"""ModuB zawierajcy komponenty infrastruktury bazy danych.
+"""Moduł zawierający komponenty infrastruktury bazy danych.
 
-Zawiera konfiguracj poBczenia z baz danych, mened|era sesji
+Zawiera konfigurację połączenia z bazą danych, menedżera sesji
 i modele ORM dla aplikacji.
 """

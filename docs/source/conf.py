@@ -46,3 +46,12 @@ html_static_path = ['_static']
 html_css_files = [
     'custom.css',
 ]
+
+html_sidebars = {
+    "**": [
+        "sidebar/brand.html",
+        "sidebar/search.html",
+        "sidebar/navigation.html", # Ta linia zapewnia globalne menu
+        "sidebar/ethical-ads.html",
+    ]
+}
