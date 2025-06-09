@@ -51,7 +51,7 @@ html_sidebars = {
     "**": [
         "sidebar/brand.html",
         "sidebar/search.html",
-        "sidebar/navigation.html", # Ta linia zapewnia globalne menu
+        "sidebar/navigation.html",  # Ta linia zapewnia globalne menu
         "sidebar/ethical-ads.html",
     ]
 }

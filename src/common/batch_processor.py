@@ -16,6 +16,7 @@ class BatchProcessor:
     Wykorzystuje ThreadPoolExecutor do wykonywania operacji w wielu wątkach.
     Implementuje wzorzec context manager dla bezpiecznego zarządzania zasobami.
     """
+
     def __init__(self, process_func: Callable, max_workers: int = 40):
         """
         Inicjalizuje procesor.
