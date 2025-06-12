@@ -101,7 +101,10 @@ if initialized:
 
     get_state().dictionaries_service.sync_dictionaries()
 
-    st.html('<style>' + open('assets/styles.css').read() + '</style>')
+    base_path = Path(__file__).resolve().parent.parent.parent
+    css_file = base_path / "assets" / "styles.css"
+    with open(css_file) as f:
+        st.html(f'<style>{f.read()}</style>')
 
     act_statistics = get_state().statistics_service.get_act_statistics()
     doc_statistics = get_state().statistics_service.get_doc_statistics()
